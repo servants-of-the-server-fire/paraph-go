@@ -1,0 +1,39 @@
+speakeasyVersion: 1.761.5
+sources:
+    Paraph API:
+        sourceNamespace: paraph-api
+        sourceRevisionDigest: sha256:508ab565e13b1ed55f2bf2fc4a2d5c25fdbaf3428a6bef7ac00800eb7b9d3c5e
+        sourceBlobDigest: sha256:fdf7a9959eb82e7960d54c4948f09bbce539188283caef7b83ee7c2c391affe8
+        tags:
+            - latest
+            - 1.0.0
+targets:
+    paraph:
+        source: Paraph API
+        sourceNamespace: paraph-api
+        sourceRevisionDigest: sha256:508ab565e13b1ed55f2bf2fc4a2d5c25fdbaf3428a6bef7ac00800eb7b9d3c5e
+        sourceBlobDigest: sha256:fdf7a9959eb82e7960d54c4948f09bbce539188283caef7b83ee7c2c391affe8
+        codeSamplesNamespace: paraph-api-go-code-samples
+        codeSamplesRevisionDigest: sha256:320f662d021ad7a690f270e6a2cb19c962fb73e9f358ea590135f07f621a54ca
+workflow:
+    workflowVersion: 1.0.0
+    speakeasyVersion: latest
+    sources:
+        Paraph API:
+            inputs:
+                - location: ../paraph/openapi.yaml
+            overlays:
+                - location: .speakeasy/speakeasy-modifications-overlay.yaml
+            output: .speakeasy/out.openapi.yaml
+            registry:
+                location: registry.speakeasyapi.dev/paraph/paraph/paraph-api
+    targets:
+        paraph:
+            target: go
+            source: Paraph API
+            codeSamples:
+                registry:
+                    location: registry.speakeasyapi.dev/paraph/paraph/paraph-api-go-code-samples
+                labelOverride:
+                    fixedValue: Go (SDK)
+                blocking: false

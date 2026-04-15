@@ -1,0 +1,163 @@
+overlay: 1.0.0
+x-speakeasy-jsonpath: rfc9535
+info:
+  title: Speakeasy Modifications
+  version: 0.0.1
+  x-speakeasy-metadata:
+    type: speakeasy-modifications
+    before: ""
+    after: ""
+actions:
+  - target: $["paths"]["/templates"]["get"]
+    update:
+      x-speakeasy-name-override: list
+    x-speakeasy-metadata:
+      after: sdk.templates.list()
+      before: sdk.Templates.listTemplates()
+      created_at: 1776293594109
+      type: method-name
+  - target: $["paths"]["/templates/{id}"]["get"]
+    update:
+      x-speakeasy-name-override: get
+    x-speakeasy-metadata:
+      after: sdk.templates.get()
+      before: sdk.Templates.getTemplate()
+      created_at: 1776293594109
+      type: method-name
+  - target: $["paths"]["/webhooks/{id}/test"]["post"]
+    update:
+      x-speakeasy-name-override: test
+    x-speakeasy-metadata:
+      after: sdk.webhooks.test()
+      before: sdk.Webhooks.testWebhook()
+      created_at: 1776293594110
+      type: method-name
+  - target: $["paths"]["/requests"]["post"]
+    update:
+      x-speakeasy-name-override: create
+    x-speakeasy-metadata:
+      after: sdk.requests.create()
+      before: sdk.Requests.createRequest()
+      created_at: 1776293594110
+      type: method-name
+  - target: $["paths"]["/webhooks"]["post"]
+    update:
+      x-speakeasy-name-override: create
+    x-speakeasy-metadata:
+      after: sdk.webhooks.create()
+      before: sdk.Webhooks.createWebhook()
+      created_at: 1776293594110
+      type: method-name
+  - target: $["paths"]["/webhooks/{id}"]["patch"]
+    update:
+      x-speakeasy-name-override: update
+    x-speakeasy-metadata:
+      after: sdk.webhooks.update()
+      before: sdk.Webhooks.updateWebhook()
+      created_at: 1776293594111
+      type: method-name
+  - target: $["paths"]["/requests/{id}"]["get"]
+    update:
+      x-speakeasy-name-override: get
+    x-speakeasy-metadata:
+      after: sdk.requests.get()
+      before: sdk.Requests.getRequest()
+      created_at: 1776293594111
+      type: method-name
+  - target: $["paths"]["/requests/{id}/cancel"]["post"]
+    update:
+      x-speakeasy-name-override: cancel
+    x-speakeasy-metadata:
+      after: sdk.requests.cancel()
+      before: sdk.Requests.cancelRequest()
+      created_at: 1776293594111
+      type: method-name
+  - target: $["paths"]["/templates"]["post"]
+    update:
+      x-speakeasy-name-override: create
+    x-speakeasy-metadata:
+      after: sdk.templates.create()
+      before: sdk.Templates.createTemplate()
+      created_at: 1776293594111
+      type: method-name
+  - target: $["paths"]["/requests/{id}/download"]["get"]
+    update:
+      x-speakeasy-name-override: download
+    x-speakeasy-metadata:
+      after: sdk.requests.download()
+      before: sdk.Requests.downloadRequest()
+      created_at: 1776293594111
+      type: method-name
+  - target: $["paths"]["/templates/{id}/download"]["get"]
+    update:
+      x-speakeasy-name-override: download
+    x-speakeasy-metadata:
+      after: sdk.templates.download()
+      before: sdk.Templates.downloadTemplate()
+      created_at: 1776293594111
+      type: method-name
+  - target: $["paths"]["/templates/{id}"]["delete"]
+    update:
+      x-speakeasy-name-override: delete
+    x-speakeasy-metadata:
+      after: sdk.templates.delete()
+      before: sdk.Templates.deleteTemplate()
+      created_at: 1776293594111
+      type: method-name
+  - target: $["paths"]["/requests"]["get"]
+    update:
+      x-speakeasy-name-override: list
+    x-speakeasy-metadata:
+      after: sdk.requests.list()
+      before: sdk.Requests.listRequests()
+      created_at: 1776293594111
+      type: method-name
+  - target: $["paths"]["/webhooks/{id}"]["get"]
+    update:
+      x-speakeasy-name-override: get
+    x-speakeasy-metadata:
+      after: sdk.webhooks.get()
+      before: sdk.Webhooks.getWebhook()
+      created_at: 1776293594111
+      type: method-name
+  - target: $["paths"]["/account"]["get"]
+    update:
+      x-speakeasy-group: accounts
+      x-speakeasy-name-override: get
+    x-speakeasy-metadata:
+      after: sdk.accounts.get()
+      before: sdk.Account.getAccount()
+      created_at: 1776293594111
+      type: method-name
+  - target: $["paths"]["/requests/{id}/signers/{sid}/signature"]["get"]
+    update:
+      x-speakeasy-name-override: downloadSignature
+    x-speakeasy-metadata:
+      after: sdk.signers.downloadSignature()
+      before: sdk.Signers.downloadSignerSignature()
+      created_at: 1776293594111
+      type: method-name
+  - target: $["paths"]["/webhooks/{id}"]["delete"]
+    update:
+      x-speakeasy-name-override: delete
+    x-speakeasy-metadata:
+      after: sdk.webhooks.delete()
+      before: sdk.Webhooks.deleteWebhook()
+      created_at: 1776293594111
+      type: method-name
+  - target: $["paths"]["/webhooks"]["get"]
+    update:
+      x-speakeasy-name-override: list
+    x-speakeasy-metadata:
+      after: sdk.webhooks.list()
+      before: sdk.Webhooks.listWebhooks()
+      created_at: 1776293594111
+      type: method-name
+  - target: $["paths"]["/templates/{id}"]["patch"]
+    update:
+      x-speakeasy-name-override: update
+    x-speakeasy-metadata:
+      after: sdk.templates.update()
+      before: sdk.Templates.updateTemplate()
+      created_at: 1776293594111
+      type: method-name
