@@ -11,7 +11,11 @@
 
 * `REQUEST_ERROR` (value: `"request.error"`)
 
+* `SIGNER_VIEWED` (value: `"signer.viewed"`)
+
 * `SIGNER_SIGNED` (value: `"signer.signed"`)
+
+* `SIGNER_DECLINED` (value: `"signer.declined"`)
 
 * `WEBHOOK_TEST` (value: `"webhook.test"`)
 

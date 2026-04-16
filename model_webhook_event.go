@@ -16,7 +16,7 @@ import (
 	"fmt"
 )
 
-// WebhookEvent Event types. `request.created`, `request.success`, `request.cancelled`, `request.error`, and `signer.signed` are dispatched for their respective lifecycle events. `webhook.test` is sent when you use the test endpoint to verify your webhook URL. 
+// WebhookEvent Event types. `request.created`, `request.success`, `request.cancelled`, and `request.error` are dispatched for request lifecycle transitions. `signer.viewed` fires each time a signer loads their signing link, `signer.signed` fires when a signer completes signing, and `signer.declined` fires when a signer explicitly declines to sign. `webhook.test` is sent when you use the test endpoint to verify your webhook URL. 
 type WebhookEvent string
 
 // List of WebhookEvent
@@ -25,7 +25,9 @@ const (
 	WEBHOOKEVENT_REQUEST_SUCCESS WebhookEvent = "request.success"
 	WEBHOOKEVENT_REQUEST_CANCELLED WebhookEvent = "request.cancelled"
 	WEBHOOKEVENT_REQUEST_ERROR WebhookEvent = "request.error"
+	WEBHOOKEVENT_SIGNER_VIEWED WebhookEvent = "signer.viewed"
 	WEBHOOKEVENT_SIGNER_SIGNED WebhookEvent = "signer.signed"
+	WEBHOOKEVENT_SIGNER_DECLINED WebhookEvent = "signer.declined"
 	WEBHOOKEVENT_WEBHOOK_TEST WebhookEvent = "webhook.test"
 )
 
@@ -35,7 +37,9 @@ var AllowedWebhookEventEnumValues = []WebhookEvent{
 	"request.success",
 	"request.cancelled",
 	"request.error",
+	"signer.viewed",
 	"signer.signed",
+	"signer.declined",
 	"webhook.test",
 }
 
