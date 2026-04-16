@@ -1,9 +1,0 @@
-# CreateRequestResponse
-
-
-## Fields
-
-| Field                                                                     | Type                                                                      | Required                                                                  | Description                                                               |
-| ------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `HTTPMeta`                                                                | [components.HTTPMetadata](../../models/components/httpmetadata.md)        | :heavy_check_mark:                                                        | N/A                                                                       |
-| `RequestResponse`                                                         | [*components.RequestResponse](../../models/components/requestresponse.md) | :heavy_minus_sign:                                                        | Request created                                                           |

@@ -1,0 +1,2259 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: support@paraph.dev
+    name: Paraph Support
+    url: https://paraph.dev
+  description: |
+    Document API for developers. Upload PDF templates, fill them via API, and send for signing when you need to. Both workflows use the same endpoint.
+
+    ## Quick Start
+
+    Upload a PDF template, then create requests against it.
+
+    All requests require `Authorization: Bearer <your-api-key>`.
+
+    ### Fill a PDF
+
+    1. [Upload a template](#tag/templates/POST/templates) with a PDF that has named form fields. The response includes the template `id` and the detected fields.
+    2. [Create a request](#tag/requests/POST/requests) with the `template_id` and a `fields` map. Status is `success` immediately.
+    3. [Download the filled PDF](#tag/requests/GET/requests/{id}/download).
+
+    ---
+
+    ### Fill + send for signing
+
+    Same as above, but add signers. You'll need to set up signature
+    placements on the template first (one-time).
+
+    1. [Upload a template](#tag/templates/POST/templates).
+    2. [Update the template](#tag/templates/PUT/templates/{id}) with `signature_placements` (page, coordinates, and which signer label goes where).
+    3. [Create a request](#tag/requests/POST/requests) with a `fields` map and a `signers` map keyed by label. Each signer gets an email with a signing link. Status is `pending` until everyone signs.
+    4. [Download the signed PDF](#tag/requests/GET/requests/{id}/download) once all signers have completed.
+
+    Use [webhooks](#tag/webhooks) to get notified instead of polling.
+
+    ---
+
+    ### Pre-signed documents
+
+    If you already have a signer's signature image (captured in your own
+    app, for example), pass `override_signature_url` in the `SignerInput`
+    when [creating a request](#tag/requests/POST/requests). That signer is
+    marked as signed immediately and no email is sent. You can mix this
+    with regular email-based signing on the same request.
+
+    ---
+
+    ### Webhooks
+
+    1. [Create a webhook](#tag/webhooks/POST/webhooks) with a URL and the events you care about.
+    2. Each delivery is a POST with `Content-Type: application/json`. See the `WebhookDelivery` schema for the payload format.
+    3. Verify deliveries using the `secret` returned at creation time. Each delivery includes an `X-Signature-256` header with an HMAC-SHA256 signature.
+
+    ---
+
+    ### Metadata
+
+    Pass a `metadata` object (up to 10 key-value pairs) when
+    [creating a request](#tag/requests/POST/requests) to tag it with your
+    own identifiers. Metadata is returned on all
+    [request endpoints](#tag/requests) and in webhook deliveries.
+
+    ---
+
+    ### Salesforce integration
+
+    Paraph offers a managed package on the Salesforce AppExchange. The SF
+    package talks to this same API — no special endpoints, no separate auth.
+
+    **Setup (one-time per SF org):**
+
+    1. In Paraph: create an API key (Admin → API Keys). Name it something
+       like "Salesforce production".
+    2. In Salesforce: open the paraph managed package's setup wizard and
+       paste the API key. The package stores it in a Named Credential.
+    3. Done. Every Apex callout auto-injects `Authorization: Bearer <key>`
+       via the Named Credential's custom header.
+
+    **What Apex code looks like:**
+
+    ```apex
+    HttpRequest req = new HttpRequest();
+    req.setEndpoint('callout:Paraph_Named_Credential/api/v1/requests');
+    req.setMethod('POST');
+    req.setHeader('Content-Type', 'application/json');
+    req.setBody(payload);
+    HttpResponse res = new Http().send(req);
+    ```
+
+    **Rotation:** create a second API key, paste the new one into SF,
+    delete the old one from Paraph. Both are valid simultaneously so there
+    is no downtime window.
+
+    **Revocation:** delete the key in Paraph. The next SF callout fails
+    with `401`; the admin pastes a fresh key.
+
+    ---
+
+    ### Common headers
+
+    All API responses include:
+    - `X-Request-Id` — unique identifier for the request, useful for debugging and support.
+    - `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` — rate limit status.
+  termsOfService: https://paraph.dev/terms
+  title: Paraph API
+  version: 1.0.0
+servers:
+- description: Production
+  url: https://paraph.dev/api/v1
+security:
+- bearerAuth: []
+tags:
+- description: |
+    A template is a PDF you upload once and reuse for every request. Paraph reads the PDF's AcroForm fields (text, date, checkbox, etc.) and returns them so you know what values to pass when creating a request. If the template needs signatures, add signature placements to define where each signer signs on the page. PDFs using XFA forms (Adobe LiveCycle) are not supported.
+  name: Templates
+- description: |
+    A request fills a template's fields and optionally sends the document for signing. Requests without signers produce a filled PDF immediately (status `success`). Requests with signers send each signer an email containing a signing link (status `pending` until all sign). Use the download endpoint to get the final PDF.
+
+    **Data retention:** Requests are subject to plan-based retention limits. On the Free plan, requests older than 30 days are no longer accessible. Pro plans retain requests for 5 years. Enterprise plans have unlimited retention.
+  name: Requests
+- description: |
+    Each signer on a request has a label (matching a signature placement on the template), an email address, and a status. Signers receive an email with a link to sign. You can resend the email or download a signer's signature image after they complete signing.
+  name: Signers
+- description: |
+    View your team's plan, usage, and limits.
+  name: Account
+- description: |
+    Subscribe to events via webhook URLs.
+  name: Webhooks
+paths:
+  /account:
+    get:
+      description: "Returns the current team's plan, usage counters, and limits for\
+        \ the API key used in the request."
+      operationId: getAccount
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                account:
+                  team_name: Acme Corp
+                  plan: pro
+                  sandbox_mode: false
+                  api_key_name: production-key
+                  limits:
+                    requests_per_month: 1000
+                    signing_requests_per_month: -1
+                    max_templates: -1
+                    max_members: 10
+                  usage:
+                    requests: 342
+                    signing_requests: 15
+                    templates: 3
+                    members: 2
+              schema:
+                $ref: "#/components/schemas/getAccount_200_response"
+          description: Account info
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Get account info
+      tags:
+      - Account
+  /templates:
+    get:
+      description: "Returns all templates in your account, newest first."
+      operationId: listTemplates
+      parameters:
+      - $ref: "#/components/parameters/page"
+      - $ref: "#/components/parameters/page_size"
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                templates:
+                - id: d290f1ee-6c54-4b01-90e6-d701748f0851
+                  name: Employment Agreement
+                  metadata:
+                    category: hr
+                  created_at: 2026-03-15T10:30:00Z
+                  updated_at: 2026-03-28T17:35:16-05:00
+                - id: e7f3a1b2-4c56-4d89-a012-3456789abcde
+                  name: Invoice
+                  metadata:
+                    category: billing
+                  created_at: 2026-03-10T08:15:00Z
+                  updated_at: 2026-03-28T17:35:16-05:00
+                list_info:
+                  page: 1
+                  num_pages: 1
+                  num_results: 2
+                  page_size: 20
+              schema:
+                $ref: "#/components/schemas/TemplateListResponse"
+          description: Paginated list of templates
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: List templates
+      tags:
+      - Templates
+    post:
+      description: |
+        Upload a PDF with named form fields. Paraph detects the fields automatically.
+
+        **Provide exactly one of `file` or `file_url`.** Requests with neither or both return `400 Bad Request`. This constraint is validated server-side — OpenAPI doesn't support expressing `oneOf` inside a multipart request body, so it's documented in prose.
+      operationId: createTemplate
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/createTemplate_request"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              example:
+                template:
+                  id: d290f1ee-6c54-4b01-90e6-d701748f0851
+                  name: Employment Agreement
+                  metadata: {}
+                  created_at: 2026-03-15T10:30:00Z
+                  updated_at: 2026-03-28T17:35:16-05:00
+                  fields:
+                  - id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                    name: employee_name
+                    type: text
+                    options: []
+                  - id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                    name: start_date
+                    type: date
+                    options: []
+                  signature_placements: []
+              schema:
+                $ref: "#/components/schemas/TemplateResponse"
+          description: Template created
+        "400":
+          content:
+            application/json:
+              examples:
+                unsupported_pdf:
+                  summary: Unsupported form fields
+                  value:
+                    error:
+                      error_name: bad_request
+                      error_msg: This PDF could not be parsed. It may use unsupported
+                        form field features.
+                not_a_pdf:
+                  summary: Not a valid PDF
+                  value:
+                    error:
+                      error_name: bad_request
+                      error_msg: File is not a valid PDF.
+                name_too_long:
+                  summary: Name exceeds length limit
+                  value:
+                    error:
+                      error_name: bad_request
+                      error_msg: name exceeds 255 characters
+                invalid_file_url:
+                  summary: Invalid or unreachable file URL
+                  value:
+                    error:
+                      error_name: bad_request
+                      error_msg: invalid or unreachable URL
+                file_url_download_failed:
+                  summary: Failed to download PDF from URL
+                  value:
+                    error:
+                      error_name: bad_request
+                      error_msg: failed to download PDF from URL
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Validation error or PDF could not be parsed
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Create template
+      tags:
+      - Templates
+  /templates/{id}:
+    delete:
+      description: Permanently removes the template. Existing requests created from
+        it are not affected.
+      operationId: deleteTemplate
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Template deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Delete template
+      tags:
+      - Templates
+    get:
+      description: Returns the template with its detected form fields and signature
+        placements.
+      operationId: getTemplate
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                template:
+                  id: d290f1ee-6c54-4b01-90e6-d701748f0851
+                  name: Employment Agreement
+                  metadata:
+                    category: hr
+                  created_at: 2026-03-15T10:30:00Z
+                  updated_at: 2026-03-28T17:35:16-05:00
+                  fields:
+                  - id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                    name: employee_name
+                    type: text
+                    options: []
+                  - id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                    name: start_date
+                    type: date
+                    options: []
+                  - id: 550e8400-e29b-41d4-a716-446655440000
+                    name: department
+                    type: combobox
+                    options:
+                    - Engineering
+                    - Sales
+                    - Marketing
+                  signature_placements: []
+              schema:
+                $ref: "#/components/schemas/TemplateResponse"
+          description: Template detail with fields
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Get template detail
+      tags:
+      - Templates
+    patch:
+      description: "Change the template name, metadata, or signature placements. Omitted\
+        \ fields are left unchanged."
+      operationId: updateTemplate
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            example:
+              name: Employment Agreement v2
+              metadata:
+                category: hr
+                year: "2026"
+              signature_placements:
+              - signer_label: Employee
+                page_number: 1
+                x: 100.0
+                "y": 650.0
+                width: 200.0
+                height: 50.0
+            schema:
+              $ref: "#/components/schemas/updateTemplate_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                template:
+                  id: d290f1ee-6c54-4b01-90e6-d701748f0851
+                  name: Employment Agreement v2
+                  metadata:
+                    category: hr
+                    year: "2026"
+                  created_at: 2026-03-15T10:30:00Z
+                  updated_at: 2026-03-28T17:35:16-05:00
+                  fields:
+                  - id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                    name: employee_name
+                    type: text
+                    options: []
+                  - id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                    name: start_date
+                    type: date
+                    options: []
+                  signature_placements: []
+              schema:
+                $ref: "#/components/schemas/TemplateResponse"
+          description: Updated template
+        "400":
+          content:
+            application/json:
+              examples:
+                name_too_long:
+                  summary: Name exceeds length limit
+                  value:
+                    error:
+                      error_name: bad_request
+                      error_msg: name exceeds 255 characters
+                signer_label_required:
+                  summary: Missing signer label in placement
+                  value:
+                    error:
+                      error_name: bad_request
+                      error_msg: signer_label is required
+                signer_label_too_long:
+                  summary: Signer label exceeds length limit
+                  value:
+                    error:
+                      error_name: bad_request
+                      error_msg: signer_label exceeds 128 characters
+                signer_label_invalid_chars:
+                  summary: Signer label contains invalid characters
+                  value:
+                    error:
+                      error_name: bad_request
+                      error_msg: signer_label contains invalid characters
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Validation error
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Update template
+      tags:
+      - Templates
+  /templates/{id}/download:
+    get:
+      description: Returns the original PDF that was uploaded when the template was
+        created.
+      operationId: downloadTemplate
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/pdf:
+              schema:
+                format: binary
+                type: string
+          description: PDF file
+          headers:
+            Content-Disposition:
+              description: attachment; filename="template.pdf"
+              explode: false
+              schema:
+                type: string
+              style: simple
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Download template PDF
+      tags:
+      - Templates
+  /requests:
+    get:
+      description: "Returns all requests in your account, newest first."
+      operationId: listRequests
+      parameters:
+      - $ref: "#/components/parameters/page"
+      - $ref: "#/components/parameters/page_size"
+      - description: Filter by request status
+        explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          $ref: "#/components/schemas/RequestStatus"
+        style: form
+      - description: Only return requests created on or after this timestamp (RFC
+          3339)
+        explode: true
+        in: query
+        name: from
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - description: Only return requests created on or before this timestamp (RFC
+          3339)
+        explode: true
+        in: query
+        name: to
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - description: Filter by metadata key. Must be used together with metadata_value.
+        explode: true
+        in: query
+        name: metadata_key
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Filter by metadata value (exact match). Must be used together
+          with metadata_key.
+        explode: true
+        in: query
+        name: metadata_value
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                requests:
+                - id: a1b2c3d4-5678-9abc-def0-1234567890ab
+                  template_id: d290f1ee-6c54-4b01-90e6-d701748f0851
+                  title: Employment Agreement - Jane Doe
+                  status: success
+                  has_signing: true
+                  created_at: 2026-03-22T10:30:00Z
+                  updated_at: 2026-03-28T17:35:16-05:00
+                - id: b2c3d4e5-6789-0abc-def1-234567890abc
+                  template_id: e7f3a1b2-4c56-4d89-a012-3456789abcde
+                  title: "Invoice #1042"
+                  status: success
+                  has_signing: false
+                  created_at: 2026-03-21T15:00:00Z
+                  updated_at: 2026-03-28T17:35:16-05:00
+                list_info:
+                  page: 1
+                  num_pages: 1
+                  num_results: 2
+                  page_size: 20
+              schema:
+                $ref: "#/components/schemas/RequestListResponse"
+          description: Paginated list of requests
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: List requests
+      tags:
+      - Requests
+    post:
+      description: |
+        Fills the template's form fields and creates a request.
+
+        If `signers` is provided and the template has signature placements
+        configured, each signer receives a signing link via email. To provide
+        a signer's signature directly (skipping the email), use
+        `override_signature_url` in the signer object.
+
+        Omitting `signers` produces a fill-only PDF with no signing flow.
+
+        Use `GET /requests/{id}/download` to retrieve the filled or signed PDF.
+      operationId: createRequest
+      parameters:
+      - description: |
+          Optional. If provided, ensures the request is processed at most once within 24 hours. Retries with the same key and body return the original response without creating a duplicate. Using the same key with a different request body returns 409 Conflict.
+        explode: false
+        in: header
+        name: Idempotency-Key
+        required: false
+        schema:
+          maxLength: 255
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            examples:
+              fill_only:
+                summary: Fill without signing
+                value:
+                  template_id: d290f1ee-6c54-4b01-90e6-d701748f0851
+                  fields:
+                    employee_name: Jane Doe
+                    start_date: 2026-04-01
+                    department: Engineering
+              single_signer:
+                summary: Fill and send for signing
+                value:
+                  template_id: d290f1ee-6c54-4b01-90e6-d701748f0851
+                  fields:
+                    employee_name: Jane Doe
+                    start_date: 2026-04-01
+                  signers:
+                    Employee:
+                      email: jane.doe@example.com
+              multi_signer:
+                summary: Multiple signers
+                value:
+                  template_id: d290f1ee-6c54-4b01-90e6-d701748f0851
+                  fields:
+                    employee_name: Jane Doe
+                    start_date: 2026-04-01
+                  signers:
+                    Employee:
+                      email: jane.doe@example.com
+                    Manager:
+                      email: bob.smith@example.com
+              pre_signed:
+                summary: Fill with pre-provided signatures
+                value:
+                  template_id: d290f1ee-6c54-4b01-90e6-d701748f0851
+                  fields:
+                    employee_name: Jane Doe
+                    start_date: 2026-04-01
+                  signers:
+                    Employee:
+                      email: jane.doe@example.com
+                      override_signature_url: https://example.com/signatures/jane.png
+            schema:
+              $ref: "#/components/schemas/createRequest_request"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              examples:
+                fill_only:
+                  summary: Fill without signing
+                  value:
+                    request:
+                      id: a1b2c3d4-5678-9abc-def0-1234567890ab
+                      template_id: d290f1ee-6c54-4b01-90e6-d701748f0851
+                      title: "Invoice #1042"
+                      status: success
+                      has_signing: false
+                      created_at: 2026-03-22T10:30:00Z
+                      updated_at: 2026-03-28T17:35:16-05:00
+                with_signing:
+                  summary: Fill and send for signing
+                  value:
+                    request:
+                      id: a1b2c3d4-5678-9abc-def0-1234567890ab
+                      template_id: d290f1ee-6c54-4b01-90e6-d701748f0851
+                      title: Employment Agreement - Jane Doe
+                      status: pending
+                      has_signing: true
+                      created_at: 2026-03-22T10:30:00Z
+                      updated_at: 2026-03-28T17:35:16-05:00
+                      signers:
+                      - id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+                        signer_label: Employee
+                        recipient_email: jane.doe@example.com
+                        status: pending
+                        expires_at: 2026-04-05T10:30:00Z
+              schema:
+                $ref: "#/components/schemas/RequestResponse"
+          description: Request created
+        "400":
+          content:
+            application/json:
+              examples:
+                bad_request:
+                  summary: Invalid input
+                  value:
+                    error:
+                      error_name: bad_request
+                      error_msg: template_id is required
+                unfillable:
+                  summary: PDF form fields could not be filled
+                  value:
+                    error:
+                      error_name: bad_request
+                      error_msg: This PDF's form fields could not be filled. The template
+                        may use an unsupported form structure.
+                title_too_long:
+                  summary: Title exceeds length limit
+                  value:
+                    error:
+                      error_name: bad_request
+                      error_msg: title exceeds 255 characters
+                message_too_long:
+                  summary: Message exceeds length limit
+                  value:
+                    error:
+                      error_name: bad_request
+                      error_msg: message exceeds 1024 characters
+                invalid_email:
+                  summary: Invalid signer email
+                  value:
+                    error:
+                      error_name: bad_request
+                      error_msg: invalid email for signer "Employee"
+                invalid_override_url:
+                  summary: Invalid override signature URL
+                  value:
+                    error:
+                      error_name: bad_request
+                      error_msg: invalid override_signature_url for signer "Employee"
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Invalid request or unfillable PDF
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Create request
+      tags:
+      - Requests
+  /requests/{id}:
+    get:
+      description: Returns the request with its field inputs and signer statuses.
+      operationId: getRequest
+      parameters:
+      - description: Request ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                request:
+                  id: a1b2c3d4-5678-9abc-def0-1234567890ab
+                  template_id: d290f1ee-6c54-4b01-90e6-d701748f0851
+                  title: Employment Agreement - Jane Doe
+                  status: success
+                  has_signing: true
+                  created_at: 2026-03-22T10:30:00Z
+                  updated_at: 2026-03-28T17:35:16-05:00
+                  inputs:
+                    employee_name: Jane Doe
+                    start_date: 2026-04-01
+                  signers:
+                  - id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+                    signer_label: Employee
+                    recipient_email: jane.doe@example.com
+                    status: signed
+                    expires_at: 2026-04-05T10:30:00Z
+                    signed_at: 2026-03-23T14:22:00Z
+              schema:
+                $ref: "#/components/schemas/RequestResponse"
+          description: Request detail including inputs and signers
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Get request detail
+      tags:
+      - Requests
+  /requests/{id}/download:
+    get:
+      description: |
+        Returns the filled PDF. If all signers have completed, signatures are
+        applied to the PDF. If signing is still pending, you get the filled
+        PDF without signatures.
+      operationId: downloadRequest
+      parameters:
+      - description: Request ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/pdf:
+              schema:
+                format: binary
+                type: string
+          description: PDF file
+          headers:
+            Content-Disposition:
+              description: attachment; filename="generated.pdf" or "signed.pdf"
+              explode: false
+              schema:
+                type: string
+              style: simple
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Download request PDF
+      tags:
+      - Requests
+  /requests/{id}/cancel:
+    post:
+      description: |
+        Cancels all pending signers on the request and sets the request status
+        to `cancelled`. Signers who have already signed are not affected.
+        Only requests with status `pending` can be cancelled.
+      operationId: cancelRequest
+      parameters:
+      - description: Request ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                request:
+                  id: a1b2c3d4-5678-9abc-def0-1234567890ab
+                  template_id: d290f1ee-6c54-4b01-90e6-d701748f0851
+                  title: Employment Agreement - Jane Doe
+                  status: cancelled
+                  has_signing: true
+                  created_at: 2026-03-22T10:30:00Z
+                  updated_at: 2026-03-28T17:35:16-05:00
+              schema:
+                $ref: "#/components/schemas/RequestResponse"
+          description: Request cancelled
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Cancel request
+      tags:
+      - Requests
+  /requests/{id}/signers/{sid}/resend:
+    post:
+      description: |
+        Generates a new signing link and resends the signing email.
+        The previous link is invalidated. Only works for signers
+        with status `pending`.
+      operationId: resendSigningLink
+      parameters:
+      - description: Request ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      - description: Signer ID
+        explode: false
+        in: path
+        name: sid
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                signer:
+                  id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+                  signer_label: Employee
+                  recipient_email: jane.doe@example.com
+                  status: pending
+                  expires_at: 2026-04-12T10:30:00Z
+              schema:
+                $ref: "#/components/schemas/resendSigningLink_200_response"
+          description: New signing link sent
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Resend signing link
+      tags:
+      - Signers
+  /requests/{id}/signers/{sid}/signature:
+    get:
+      description: |
+        Returns the stored signature image (PNG) for a signer who has completed
+        signing, either via the signing page or a pre-provided override_signature_url.
+      operationId: downloadSignerSignature
+      parameters:
+      - description: Request ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      - description: Signer ID
+        explode: false
+        in: path
+        name: sid
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            image/png:
+              schema:
+                format: binary
+                type: string
+          description: Signature image
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Download signer signature
+      tags:
+      - Signers
+  /webhooks:
+    get:
+      description: "Returns all webhooks registered in your account, newest first."
+      operationId: listWebhooks
+      parameters:
+      - $ref: "#/components/parameters/page"
+      - $ref: "#/components/parameters/page_size"
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                webhooks:
+                - id: b1c2d3e4-5678-9abc-def0-1234567890ab
+                  url: https://example.com/webhook
+                  events:
+                  - request.success
+                  - signer.signed
+                  active: true
+                  created_at: 2026-03-23T10:00:00Z
+                  updated_at: 2026-03-28T17:35:16-05:00
+                list_info:
+                  page: 1
+                  num_pages: 1
+                  num_results: 1
+                  page_size: 20
+              schema:
+                $ref: "#/components/schemas/WebhookListResponse"
+          description: Paginated list of webhooks for the current group
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: List webhooks
+      tags:
+      - Webhooks
+    post:
+      description: Registers a URL to receive event notifications.
+      operationId: createWebhook
+      requestBody:
+        content:
+          application/json:
+            example:
+              url: https://example.com/webhook
+              events:
+              - request.success
+              - signer.signed
+            schema:
+              $ref: "#/components/schemas/createWebhook_request"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/createWebhook_201_response"
+          description: Webhook created
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Create webhook
+      tags:
+      - Webhooks
+  /webhooks/{id}:
+    delete:
+      description: Permanently removes the webhook. No further deliveries will be
+        sent.
+      operationId: deleteWebhook
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Webhook deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Delete webhook
+      tags:
+      - Webhooks
+    get:
+      description: Returns a single webhook.
+      operationId: getWebhook
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                webhook:
+                  id: b1c2d3e4-5678-9abc-def0-1234567890ab
+                  url: https://example.com/webhook
+                  events:
+                  - request.success
+                  - signer.signed
+                  active: true
+                  created_at: 2026-03-23T10:00:00Z
+                  updated_at: 2026-03-28T17:35:16-05:00
+              schema:
+                $ref: "#/components/schemas/WebhookResponse"
+          description: Webhook details
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Get webhook
+      tags:
+      - Webhooks
+    patch:
+      description: "Change the webhook URL, subscribed events, or active status. Omitted\
+        \ fields are left unchanged."
+      operationId: updateWebhook
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/updateWebhook_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                webhook:
+                  id: b1c2d3e4-5678-9abc-def0-1234567890ab
+                  url: https://example.com/webhook-v2
+                  events:
+                  - request.success
+                  active: true
+                  created_at: 2026-03-23T10:00:00Z
+                  updated_at: 2026-03-28T17:35:16-05:00
+              schema:
+                $ref: "#/components/schemas/WebhookResponse"
+          description: Updated webhook
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Update webhook
+      tags:
+      - Webhooks
+  /webhooks/{id}/test:
+    post:
+      description: |
+        Sends a test event payload to the webhook URL. Use this to verify
+        your endpoint is correctly receiving and processing webhook deliveries.
+      operationId: testWebhook
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Test delivery succeeded
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: Test webhook
+      tags:
+      - Webhooks
+components:
+  headers:
+    X-Request-Id:
+      description: Unique identifier for this request. Include in support tickets
+        for faster debugging.
+      explode: false
+      schema:
+        example: req_abc123def456
+        type: string
+      style: simple
+  parameters:
+    page:
+      explode: true
+      in: query
+      name: page
+      required: false
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+      style: form
+    page_size:
+      explode: true
+      in: query
+      name: page_size
+      required: false
+      schema:
+        default: 20
+        maximum: 100
+        minimum: 1
+        type: integer
+      style: form
+  responses:
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: Invalid input
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: Missing or invalid API key
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: Resource not found
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: Invalid state transition
+    TooManyRequests:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: Rate limit or quota exceeded
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: Internal server error
+    BadGateway:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: Upstream delivery failed
+  schemas:
+    Account:
+      example:
+        team_name: Acme Corp
+        plan: pro
+        sandbox_mode: false
+        api_key_name: production-key
+        limits:
+          requests_per_month: 1000
+          signing_requests_per_month: -1
+          max_templates: -1
+          max_members: 10
+        usage:
+          requests: 342
+          signing_requests: 15
+          templates: 3
+          members: 2
+      properties:
+        team_name:
+          type: string
+        plan:
+          enum:
+          - free
+          - pro
+          - enterprise
+          type: string
+        sandbox_mode:
+          type: boolean
+        api_key_name:
+          description: Name of the API key used for this request
+          type: string
+        limits:
+          $ref: "#/components/schemas/Account_limits"
+        usage:
+          $ref: "#/components/schemas/Account_usage"
+      required:
+      - api_key_name
+      - limits
+      - plan
+      - sandbox_mode
+      - team_name
+      - usage
+    Error:
+      description: |
+        All error responses use this format.
+      example:
+        error:
+          error_name: bad_request
+          error_msg: invalid email address
+      properties:
+        error:
+          $ref: "#/components/schemas/Error_error"
+      required:
+      - error
+    ListInfo:
+      example:
+        page: 1
+        num_pages: 3
+        num_results: 48
+        page_size: 20
+      properties:
+        page:
+          type: integer
+        num_pages:
+          type: integer
+        num_results:
+          type: integer
+        page_size:
+          type: integer
+      required:
+      - num_pages
+      - num_results
+      - page
+      - page_size
+    Template:
+      example:
+        id: d290f1ee-6c54-4b01-90e6-d701748f0851
+        name: Employment Agreement
+        metadata:
+          category: hr
+        created_at: 2026-03-15T10:30:00Z
+        updated_at: 2026-03-15T10:30:00Z
+      properties:
+        id:
+          format: uuid
+          type: string
+        name:
+          maxLength: 255
+          type: string
+        metadata:
+          additionalProperties:
+            maxLength: 1024
+            type: string
+            x-additionalPropertiesName: key
+          description: "Arbitrary key-value pairs (max 10 keys, key max 128 chars,\
+            \ value max 1024 chars)"
+          maxProperties: 10
+        created_at:
+          format: date-time
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+      required:
+      - created_at
+      - id
+      - name
+      - updated_at
+    TemplateDetail:
+      allOf:
+      - $ref: "#/components/schemas/Template"
+      - properties:
+          fields:
+            description: Form fields detected in the uploaded PDF
+            items:
+              $ref: "#/components/schemas/Field"
+            type: array
+          signature_placements:
+            description: Signature placement regions configured on this template
+            items:
+              $ref: "#/components/schemas/SignaturePlacement"
+            type: array
+        required:
+        - fields
+        - signature_placements
+      example:
+        id: d290f1ee-6c54-4b01-90e6-d701748f0851
+        name: Employment Agreement
+        metadata:
+          category: hr
+        created_at: 2026-03-15T10:30:00Z
+        updated_at: 2026-03-15T10:30:00Z
+        fields:
+        - id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          name: employee_name
+          type: text
+          options: []
+        - id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+          name: start_date
+          type: date
+          options: []
+        - id: 550e8400-e29b-41d4-a716-446655440000
+          name: department
+          type: combobox
+          options:
+          - Engineering
+          - Sales
+          - Marketing
+        signature_placements:
+        - id: c1d2e3f4-5678-9abc-def0-1234567890ab
+          signer_label: Employee
+          page_number: 1
+          x: 100.0
+          "y": 650.0
+          width: 200.0
+          height: 50.0
+    Field:
+      example:
+        id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+        name: employee_name
+        type: text
+        options: []
+      properties:
+        id:
+          format: uuid
+          type: string
+        name:
+          description: Field name as defined in the PDF form
+          type: string
+        type:
+          description: AcroForm field type
+          enum:
+          - text
+          - date
+          - checkbox
+          - combobox
+          - listbox
+          - radio_group
+          type: string
+        options:
+          description: "Available options for ComboBox, ListBox, or RadioButtonGroup\
+            \ fields"
+          items:
+            type: string
+          type: array
+      required:
+      - id
+      - name
+      - options
+      - type
+    SignaturePlacement:
+      example:
+        id: c1d2e3f4-5678-9abc-def0-1234567890ab
+        signer_label: Employee
+        page_number: 1
+        x: 100.0
+        "y": 650.0
+        width: 200.0
+        height: 50.0
+      properties:
+        id:
+          format: uuid
+          type: string
+        signer_label:
+          description: Label identifying which signer this placement belongs to
+          maxLength: 128
+          type: string
+        page_number:
+          type: integer
+        x:
+          description: X coordinate in PDF points from the left edge of the page
+          type: number
+        "y":
+          description: Y coordinate in PDF points from the bottom edge of the page
+          type: number
+        width:
+          type: number
+        height:
+          type: number
+      required:
+      - height
+      - id
+      - page_number
+      - signer_label
+      - width
+      - x
+      - "y"
+    SignaturePlacementInput:
+      properties:
+        signer_label:
+          maxLength: 128
+          type: string
+        page_number:
+          type: integer
+        x:
+          type: number
+        "y":
+          type: number
+        width:
+          type: number
+        height:
+          type: number
+      required:
+      - height
+      - page_number
+      - signer_label
+      - width
+      - x
+      - "y"
+    WebhookEvent:
+      description: |
+        Event types. `request.created`, `request.success`, `request.cancelled`, `request.error`, and `signer.signed` are dispatched for their respective lifecycle events. `webhook.test` is sent when you use the test endpoint to verify your webhook URL.
+      enum:
+      - request.created
+      - request.success
+      - request.cancelled
+      - request.error
+      - signer.signed
+      - webhook.test
+      type: string
+    Webhook:
+      example:
+        id: b1c2d3e4-5678-9abc-def0-1234567890ab
+        url: https://example.com/webhook
+        events:
+        - request.success
+        - signer.signed
+        active: true
+        created_at: 2026-03-23T10:00:00Z
+        updated_at: 2026-03-23T10:00:00Z
+      properties:
+        id:
+          format: uuid
+          type: string
+        url:
+          format: uri
+          type: string
+        events:
+          items:
+            $ref: "#/components/schemas/WebhookEvent"
+          type: array
+        active:
+          type: boolean
+        created_at:
+          format: date-time
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+      required:
+      - active
+      - created_at
+      - events
+      - id
+      - updated_at
+      - url
+    WebhookDelivery:
+      description: |
+        Payload delivered to your webhook URL when an event occurs.
+
+        Deliveries include an `X-Signature-256` header containing
+        `sha256=<hex>` where `<hex>` is the HMAC-SHA256 of the request
+        body using the webhook's secret as the key. Verify this to
+        confirm the delivery came from Paraph.
+
+        Failed deliveries are retried up to 5 times with exponential
+        backoff (1s, 2s, 4s, 8s, 16s). Each attempt has a 10-second
+        timeout. After all retries are exhausted the delivery is marked
+        as failed.
+      properties:
+        event:
+          $ref: "#/components/schemas/WebhookEvent"
+        timestamp:
+          format: date-time
+          type: string
+        data:
+          $ref: "#/components/schemas/WebhookDelivery_data"
+      required:
+      - data
+      - event
+      - timestamp
+    RequestStatus:
+      description: |
+        Lifecycle status of a document request.
+        - `success` — fill completed (and all signers signed, if any)
+        - `error` — terminal failure
+        - `pending` — awaiting signer action
+        - `cancelled` — caller cancelled before completion
+      enum:
+      - success
+      - error
+      - pending
+      - cancelled
+      type: string
+    SignerStatus:
+      description: |
+        Per-signer status.
+        - `pending` — signing link sent, awaiting signer
+        - `signed` — signer completed
+        - `expired` — signer did not sign before `expires_at`
+        - `error` — terminal failure for this signer
+        - `cancelled` — parent request was cancelled
+      enum:
+      - pending
+      - signed
+      - expired
+      - error
+      - cancelled
+      type: string
+    DocumentRequestSummary:
+      description: "Compact request representation returned in list endpoints. Use\
+        \ GET /requests/{id} for full details including inputs, metadata, and signers."
+      example:
+        id: a1b2c3d4-5678-9abc-def0-1234567890ab
+        template_id: d290f1ee-6c54-4b01-90e6-d701748f0851
+        title: Employment Agreement - Jane Doe
+        status: success
+        has_signing: true
+        created_at: 2026-03-22T10:30:00Z
+        updated_at: 2026-03-22T10:30:00Z
+      properties:
+        id:
+          format: uuid
+          type: string
+        template_id:
+          format: uuid
+          type: string
+        title:
+          maxLength: 255
+          type: string
+        status:
+          $ref: "#/components/schemas/RequestStatus"
+        has_signing:
+          type: boolean
+        created_at:
+          format: date-time
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+      required:
+      - created_at
+      - has_signing
+      - id
+      - status
+      - template_id
+      - updated_at
+    DocumentRequest:
+      description: "Full request representation returned by detail and create endpoints.\
+        \ Includes inputs, metadata, and signers."
+      example:
+        id: a1b2c3d4-5678-9abc-def0-1234567890ab
+        template_id: d290f1ee-6c54-4b01-90e6-d701748f0851
+        title: Employment Agreement - Jane Doe
+        status: success
+        has_signing: true
+        created_at: 2026-03-22T10:30:00Z
+        updated_at: 2026-03-22T10:30:00Z
+        inputs:
+          employee_name: Jane Doe
+          start_date: 2026-04-01
+        signers:
+        - id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+          signer_label: Employee
+          recipient_email: jane.doe@example.com
+          status: signed
+          expires_at: 2026-04-05T10:30:00Z
+          signed_at: 2026-03-23T14:22:00Z
+      properties:
+        id:
+          format: uuid
+          type: string
+        template_id:
+          format: uuid
+          type: string
+        title:
+          description: Display title for the request
+          maxLength: 255
+          type: string
+        message:
+          description: Custom message included in signing emails
+          maxLength: 1024
+          type: string
+        status:
+          $ref: "#/components/schemas/RequestStatus"
+        has_signing:
+          description: Whether this request includes signers
+          type: boolean
+        created_at:
+          format: date-time
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        inputs:
+          additionalProperties:
+            type: string
+            x-additionalPropertiesName: field_name
+          description: Field values used to fill the template
+        metadata:
+          additionalProperties:
+            maxLength: 1024
+            type: string
+            x-additionalPropertiesName: key
+          description: "Arbitrary key-value pairs for your own use (max 10 keys, key\
+            \ max 128 chars, value max 1024 chars)"
+          maxProperties: 10
+        signers:
+          description: "Signers attached to this request, if any"
+          items:
+            $ref: "#/components/schemas/Signer"
+          type: array
+      required:
+      - created_at
+      - has_signing
+      - id
+      - status
+      - template_id
+      - updated_at
+    Signer:
+      example:
+        id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+        signer_label: Employee
+        recipient_email: jane.doe@example.com
+        status: pending
+        expires_at: 2026-04-05T10:30:00Z
+      properties:
+        id:
+          format: uuid
+          type: string
+        signer_label:
+          description: "Role label for this signer (e.g. \"Employee\", \"Manager\"\
+            )"
+          type: string
+        recipient_email:
+          format: email
+          type: string
+        status:
+          $ref: "#/components/schemas/SignerStatus"
+        expires_at:
+          description: When the signing link expires
+          format: date-time
+          type: string
+        signed_at:
+          description: When the signer completed signing
+          format: date-time
+          type: string
+      required:
+      - id
+      - recipient_email
+      - signer_label
+      - status
+    SignerInput:
+      properties:
+        email:
+          format: email
+          maxLength: 254
+          type: string
+        override_signature_url:
+          description: |
+            URL to a PNG signature image. When provided, the image is downloaded
+            and stored, the signer is immediately marked as signed, and no
+            signing email is sent.
+          format: uri
+          type: string
+      required:
+      - email
+    TemplateListResponse:
+      example:
+        templates:
+        - id: d290f1ee-6c54-4b01-90e6-d701748f0851
+          name: Employment Agreement
+          metadata:
+            category: hr
+          created_at: 2026-03-15T10:30:00Z
+          updated_at: 2026-03-15T10:30:00Z
+        - id: d290f1ee-6c54-4b01-90e6-d701748f0851
+          name: Employment Agreement
+          metadata:
+            category: hr
+          created_at: 2026-03-15T10:30:00Z
+          updated_at: 2026-03-15T10:30:00Z
+        list_info:
+          page: 1
+          num_pages: 3
+          num_results: 48
+          page_size: 20
+      properties:
+        templates:
+          items:
+            $ref: "#/components/schemas/Template"
+          type: array
+        list_info:
+          $ref: "#/components/schemas/ListInfo"
+    RequestListResponse:
+      example:
+        list_info:
+          page: 1
+          num_pages: 3
+          num_results: 48
+          page_size: 20
+        requests:
+        - id: a1b2c3d4-5678-9abc-def0-1234567890ab
+          template_id: d290f1ee-6c54-4b01-90e6-d701748f0851
+          title: Employment Agreement - Jane Doe
+          status: success
+          has_signing: true
+          created_at: 2026-03-22T10:30:00Z
+          updated_at: 2026-03-22T10:30:00Z
+        - id: a1b2c3d4-5678-9abc-def0-1234567890ab
+          template_id: d290f1ee-6c54-4b01-90e6-d701748f0851
+          title: Employment Agreement - Jane Doe
+          status: success
+          has_signing: true
+          created_at: 2026-03-22T10:30:00Z
+          updated_at: 2026-03-22T10:30:00Z
+      properties:
+        requests:
+          items:
+            $ref: "#/components/schemas/DocumentRequestSummary"
+          type: array
+        list_info:
+          $ref: "#/components/schemas/ListInfo"
+    WebhookListResponse:
+      example:
+        webhooks:
+        - id: b1c2d3e4-5678-9abc-def0-1234567890ab
+          url: https://example.com/webhook
+          events:
+          - request.success
+          - signer.signed
+          active: true
+          created_at: 2026-03-23T10:00:00Z
+          updated_at: 2026-03-23T10:00:00Z
+        - id: b1c2d3e4-5678-9abc-def0-1234567890ab
+          url: https://example.com/webhook
+          events:
+          - request.success
+          - signer.signed
+          active: true
+          created_at: 2026-03-23T10:00:00Z
+          updated_at: 2026-03-23T10:00:00Z
+        list_info:
+          page: 1
+          num_pages: 3
+          num_results: 48
+          page_size: 20
+      properties:
+        webhooks:
+          items:
+            $ref: "#/components/schemas/Webhook"
+          type: array
+        list_info:
+          $ref: "#/components/schemas/ListInfo"
+    TemplateResponse:
+      example:
+        template:
+          id: d290f1ee-6c54-4b01-90e6-d701748f0851
+          name: Employment Agreement
+          metadata:
+            category: hr
+          created_at: 2026-03-15T10:30:00Z
+          updated_at: 2026-03-15T10:30:00Z
+          fields:
+          - id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+            name: employee_name
+            type: text
+            options: []
+          - id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+            name: start_date
+            type: date
+            options: []
+          - id: 550e8400-e29b-41d4-a716-446655440000
+            name: department
+            type: combobox
+            options:
+            - Engineering
+            - Sales
+            - Marketing
+          signature_placements:
+          - id: c1d2e3f4-5678-9abc-def0-1234567890ab
+            signer_label: Employee
+            page_number: 1
+            x: 100.0
+            "y": 650.0
+            width: 200.0
+            height: 50.0
+      properties:
+        template:
+          $ref: "#/components/schemas/TemplateDetail"
+    RequestResponse:
+      example:
+        request:
+          id: a1b2c3d4-5678-9abc-def0-1234567890ab
+          template_id: d290f1ee-6c54-4b01-90e6-d701748f0851
+          title: Employment Agreement - Jane Doe
+          status: success
+          has_signing: true
+          created_at: 2026-03-22T10:30:00Z
+          updated_at: 2026-03-22T10:30:00Z
+          inputs:
+            employee_name: Jane Doe
+            start_date: 2026-04-01
+          signers:
+          - id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+            signer_label: Employee
+            recipient_email: jane.doe@example.com
+            status: signed
+            expires_at: 2026-04-05T10:30:00Z
+            signed_at: 2026-03-23T14:22:00Z
+      properties:
+        request:
+          $ref: "#/components/schemas/DocumentRequest"
+    WebhookResponse:
+      example:
+        webhook:
+          id: b1c2d3e4-5678-9abc-def0-1234567890ab
+          url: https://example.com/webhook
+          events:
+          - request.success
+          - signer.signed
+          active: true
+          created_at: 2026-03-23T10:00:00Z
+          updated_at: 2026-03-23T10:00:00Z
+      properties:
+        webhook:
+          $ref: "#/components/schemas/Webhook"
+    getAccount_200_response:
+      example:
+        account:
+          team_name: Acme Corp
+          plan: pro
+          sandbox_mode: false
+          api_key_name: production-key
+          limits:
+            requests_per_month: 1000
+            signing_requests_per_month: -1
+            max_templates: -1
+            max_members: 10
+          usage:
+            requests: 342
+            signing_requests: 15
+            templates: 3
+            members: 2
+      properties:
+        account:
+          $ref: "#/components/schemas/Account"
+      required:
+      - account
+    createTemplate_request:
+      description: Upload a PDF template with named form fields. Provide exactly one
+        of `file` or `file_url`.
+      properties:
+        name:
+          description: Display name for the template
+          maxLength: 255
+          type: string
+        file:
+          description: PDF file with AcroForm fields (mutually exclusive with `file_url`)
+          format: binary
+          type: string
+        file_url:
+          description: URL to fetch the PDF from (mutually exclusive with `file`)
+          format: uri
+          type: string
+      required:
+      - name
+    updateTemplate_request:
+      properties:
+        name:
+          description: New template name (omit to leave unchanged)
+          maxLength: 255
+          type: string
+        metadata:
+          additionalProperties:
+            maxLength: 1024
+            type: string
+            x-additionalPropertiesName: key
+          description: "Replace all metadata (omit to leave unchanged, key max 128\
+            \ chars, value max 1024 chars)"
+          maxProperties: 10
+        signature_placements:
+          description: Replace all signature placements (omit to leave unchanged)
+          items:
+            $ref: "#/components/schemas/SignaturePlacementInput"
+          type: array
+    createRequest_request:
+      properties:
+        template_id:
+          description: ID of the template to fill
+          format: uuid
+          type: string
+        fields:
+          additionalProperties:
+            type: string
+            x-additionalPropertiesName: field_name
+          description: Map of field names to values. Text fields accept strings. Checkbox
+            fields accept "checked" or "unchecked".
+        signers:
+          additionalProperties:
+            allOf:
+            - $ref: "#/components/schemas/SignerInput"
+            x-additionalPropertiesName: signer_label
+          description: |
+            Map of signer label to signer configuration. Each key is a signer label defined in the template's signature placements. Omit entirely for fill-only requests.
+        title:
+          description: Display title for the request. Defaults to the template name.
+            Shown in emails and dashboards.
+          maxLength: 255
+          type: string
+        message:
+          description: Custom message included in signing emails sent to signers.
+          maxLength: 1024
+          type: string
+        metadata:
+          additionalProperties:
+            maxLength: 1024
+            type: string
+            x-additionalPropertiesName: key
+          description: "Arbitrary key-value pairs for your own use (max 10 keys, key\
+            \ max 128 chars, value max 1024 chars)"
+          maxProperties: 10
+        allow_typed_signature:
+          default: true
+          description: |
+            Whether signers can type their name as a signature instead of drawing or uploading one. Defaults to true.
+          type: boolean
+      required:
+      - template_id
+    resendSigningLink_200_response:
+      example:
+        signer:
+          id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+          signer_label: Employee
+          recipient_email: jane.doe@example.com
+          status: pending
+          expires_at: 2026-04-05T10:30:00Z
+      properties:
+        signer:
+          $ref: "#/components/schemas/Signer"
+    createWebhook_request:
+      properties:
+        url:
+          description: URL to receive webhook POST requests
+          format: uri
+          type: string
+        events:
+          description: Event types to subscribe to
+          items:
+            $ref: "#/components/schemas/WebhookEvent"
+          type: array
+      required:
+      - events
+      - url
+    createWebhook_201_response_webhook:
+      allOf:
+      - $ref: "#/components/schemas/Webhook"
+      - properties:
+          secret:
+            description: |
+              HMAC secret for verifying webhook deliveries. Only returned once, when the webhook is created. Store it securely.
+            type: string
+      example:
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        active: true
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        secret: secret
+        url: https://openapi-generator.tech
+        events:
+        - request.created
+        - request.created
+    createWebhook_201_response:
+      example:
+        webhook:
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          active: true
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          secret: secret
+          url: https://openapi-generator.tech
+          events:
+          - request.created
+          - request.created
+      properties:
+        webhook:
+          $ref: "#/components/schemas/createWebhook_201_response_webhook"
+    updateWebhook_request:
+      properties:
+        url:
+          format: uri
+          type: string
+        events:
+          items:
+            $ref: "#/components/schemas/WebhookEvent"
+          type: array
+        active:
+          type: boolean
+    Account_limits:
+      properties:
+        requests_per_month:
+          description: -1 means unlimited
+          type: integer
+        signing_requests_per_month:
+          description: -1 means unlimited
+          type: integer
+        max_templates:
+          description: -1 means unlimited
+          type: integer
+        max_members:
+          description: -1 means unlimited
+          type: integer
+      required:
+      - max_members
+      - max_templates
+      - requests_per_month
+      - signing_requests_per_month
+    Account_usage:
+      properties:
+        requests:
+          description: Requests created in the last 30 days
+          type: integer
+        signing_requests:
+          description: Signing tasks created in the last 30 days
+          type: integer
+        templates:
+          description: Total templates in the account
+          type: integer
+        members:
+          description: Total team members
+          type: integer
+      required:
+      - members
+      - requests
+      - signing_requests
+      - templates
+    Error_error:
+      properties:
+        error_name:
+          enum:
+          - unauthorized
+          - not_found
+          - bad_request
+          - exceeded_quota
+          - exceeded_rate
+          - unknown
+          - merge_failed
+          - invalid_status
+          type: string
+        error_msg:
+          type: string
+      required:
+      - error_msg
+      - error_name
+    WebhookDelivery_data:
+      description: Event-specific payload
+      properties:
+        request_id:
+          format: uuid
+          type: string
+        template_id:
+          format: uuid
+          type: string
+        signer_id:
+          description: Present for signer.* events
+          format: uuid
+          type: string
+        signer_label:
+          description: Present for signer.* events
+          type: string
+        recipient_email:
+          description: Present for signer.* events
+          format: email
+          type: string
+  securitySchemes:
+    bearerAuth:
+      description: API key from the Paraph dashboard (Admin → API Keys)
+      scheme: bearer
+      type: http
