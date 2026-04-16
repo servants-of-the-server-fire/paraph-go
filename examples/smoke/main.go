@@ -1,4 +1,5 @@
-// Smoke test for the Paraph Go SDK.
+// Smoke test for the Paraph Go SDK — calls GET /account and GET /templates
+// against a live instance, prints the results. Read-only; safe to run.
 //
 // Usage:
 //
@@ -14,20 +15,28 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	paraph "github.com/servants-of-the-server-fire/paraph-go"
 )
 
 func main() {
-	client, err := paraph.NewClientFromEnv()
-	if err != nil {
-		log.Fatal(err)
+	apiKey := os.Getenv("PARAPH_API_KEY")
+	if apiKey == "" {
+		log.Fatal("PARAPH_API_KEY must be set")
 	}
 
+	cfg := paraph.NewConfiguration()
+	cfg.AddDefaultHeader("Authorization", "Bearer "+apiKey)
+	if base := os.Getenv("PARAPH_BASE_URL"); base != "" {
+		cfg.Servers = paraph.ServerConfigurations{{URL: base}}
+	}
+
+	client := paraph.NewAPIClient(cfg)
 	ctx := context.Background()
 
 	fmt.Println("→ GET /account")
-	acct, _, err := client.Account.GetAccount(ctx).Execute()
+	acct, _, err := client.AccountAPI.GetAccount(ctx).Execute()
 	if err != nil {
 		log.Fatalf("GetAccount: %v", err)
 	}
@@ -35,7 +44,7 @@ func main() {
 	fmt.Printf("  team=%q plan=%s sandbox=%v\n", a.TeamName, a.Plan, a.SandboxMode)
 
 	fmt.Println("→ GET /templates")
-	tmpls, _, err := client.Templates.ListTemplates(ctx).Execute()
+	tmpls, _, err := client.TemplatesAPI.ListTemplates(ctx).Execute()
 	if err != nil {
 		log.Fatalf("ListTemplates: %v", err)
 	}
