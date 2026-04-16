@@ -120,6 +120,7 @@ All API responses include:
   * [SDK Example Usage](#sdk-example-usage)
   * [Authentication](#authentication)
   * [Available Resources and Operations](#available-resources-and-operations)
+  * [Pagination](#pagination)
   * [Retries](#retries)
   * [Error Handling](#error-handling)
   * [Server Selection](#server-selection)
@@ -258,6 +259,55 @@ func main() {
 </details>
 <!-- End Available Resources and Operations [operations] -->
 
+<!-- Start Pagination [pagination] -->
+## Pagination
+
+Some of the endpoints in this SDK support pagination. To use pagination, you make your SDK calls as usual, but the
+returned response object will have a `Next` method that can be called to pull down the next group of results. If the
+return value of `Next` is `nil`, then there are no more pages to be fetched.
+
+Here's an example of one such pagination call:
+```go
+package main
+
+import (
+	"context"
+	paraph "github.com/servants-of-the-server-fire/paraph-go"
+	"log"
+	"os"
+)
+
+func main() {
+	ctx := context.Background()
+
+	s := paraph.New(
+		paraph.WithSecurity(os.Getenv("PARAPH_BEARER_AUTH")),
+	)
+
+	res, err := s.Templates.List(ctx, paraph.Pointer[int64](1), paraph.Pointer[int64](20))
+	if err != nil {
+		log.Fatal(err)
+	}
+	if res.TemplateListResponse != nil {
+		for {
+			// handle items
+
+			res, err = res.Next()
+
+			if err != nil {
+				// handle error
+			}
+
+			if res == nil {
+				break
+			}
+		}
+	}
+}
+
+```
+<!-- End Pagination [pagination] -->
+
 <!-- Start Retries [retries] -->
 ## Retries
 
@@ -353,12 +403,13 @@ Handling errors in this SDK should largely match your expectations. All operatio
 
 By Default, an API error will return `apierrors.APIError`. When custom error responses are specified for an operation, the SDK may also return their associated error. You can refer to respective *Errors* tables in SDK docs for more details on possible error types for each operation.
 
-For example, the `Create` function may return the following errors:
+For example, the `Get` function may return the following errors:
 
-| Error Type         | Status Code | Content Type     |
-| ------------------ | ----------- | ---------------- |
-| apierrors.Error    | 400, 429    | application/json |
-| apierrors.APIError | 4XX, 5XX    | \*/\*            |
+| Error Type         | Status Code        | Content Type     |
+| ------------------ | ------------------ | ---------------- |
+| apierrors.Error    | 400, 401, 404, 429 | application/json |
+| apierrors.Error    | 500                | application/json |
+| apierrors.APIError | 4XX, 5XX           | \*/\*            |
 
 ### Example
 
@@ -370,7 +421,6 @@ import (
 	"errors"
 	paraph "github.com/servants-of-the-server-fire/paraph-go"
 	"github.com/servants-of-the-server-fire/paraph-go/models/apierrors"
-	"github.com/servants-of-the-server-fire/paraph-go/models/operations"
 	"log"
 	"os"
 )
@@ -382,13 +432,14 @@ func main() {
 		paraph.WithSecurity(os.Getenv("PARAPH_BEARER_AUTH")),
 	)
 
-	res, err := s.Templates.Create(ctx, operations.CreateCreateTemplateRequestRequestBody2(
-		operations.RequestBody2{
-			Name:    "<value>",
-			FileURL: "https://dependent-graffiti.name/",
-		},
-	))
+	res, err := s.Accounts.Get(ctx)
 	if err != nil {
+
+		var e *apierrors.Error
+		if errors.As(err, &e) {
+			// handle error
+			log.Fatal(e.Error())
+		}
 
 		var e *apierrors.Error
 		if errors.As(err, &e) {

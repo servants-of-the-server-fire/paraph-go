@@ -43,7 +43,19 @@ func main() {
         log.Fatal(err)
     }
     if res.TemplateListResponse != nil {
-        // handle response
+        for {
+            // handle items
+
+            res, err = res.Next()
+
+            if err != nil {
+                // handle error
+            }
+
+            if res == nil {
+                break
+            }
+        }
     }
 }
 ```
@@ -65,11 +77,16 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500                | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |
 
 ## Create
 
 Upload a PDF with named form fields. Paraph detects the fields automatically.
+
+**Provide exactly one of `file` or `file_url`.** Requests with neither or both return `400 Bad Request`. This constraint is validated server-side — OpenAPI doesn't support expressing `oneOf` inside a multipart request body, so it's documented in prose.
+
 
 ### Example Usage: file_url_download_failed
 
@@ -92,12 +109,9 @@ func main() {
         paraph.WithSecurity(os.Getenv("PARAPH_BEARER_AUTH")),
     )
 
-    res, err := s.Templates.Create(ctx, operations.CreateCreateTemplateRequestRequestBody2(
-        operations.RequestBody2{
-            Name: "<value>",
-            FileURL: "https://dependent-graffiti.name/",
-        },
-    ))
+    res, err := s.Templates.Create(ctx, operations.CreateTemplateRequest{
+        Name: "<value>",
+    })
     if err != nil {
         log.Fatal(err)
     }
@@ -127,12 +141,9 @@ func main() {
         paraph.WithSecurity(os.Getenv("PARAPH_BEARER_AUTH")),
     )
 
-    res, err := s.Templates.Create(ctx, operations.CreateCreateTemplateRequestRequestBody2(
-        operations.RequestBody2{
-            Name: "<value>",
-            FileURL: "https://dependent-graffiti.name/",
-        },
-    ))
+    res, err := s.Templates.Create(ctx, operations.CreateTemplateRequest{
+        Name: "<value>",
+    })
     if err != nil {
         log.Fatal(err)
     }
@@ -162,12 +173,9 @@ func main() {
         paraph.WithSecurity(os.Getenv("PARAPH_BEARER_AUTH")),
     )
 
-    res, err := s.Templates.Create(ctx, operations.CreateCreateTemplateRequestRequestBody2(
-        operations.RequestBody2{
-            Name: "<value>",
-            FileURL: "https://dependent-graffiti.name/",
-        },
-    ))
+    res, err := s.Templates.Create(ctx, operations.CreateTemplateRequest{
+        Name: "<value>",
+    })
     if err != nil {
         log.Fatal(err)
     }
@@ -197,12 +205,9 @@ func main() {
         paraph.WithSecurity(os.Getenv("PARAPH_BEARER_AUTH")),
     )
 
-    res, err := s.Templates.Create(ctx, operations.CreateCreateTemplateRequestRequestBody2(
-        operations.RequestBody2{
-            Name: "<value>",
-            FileURL: "https://dependent-graffiti.name/",
-        },
-    ))
+    res, err := s.Templates.Create(ctx, operations.CreateTemplateRequest{
+        Name: "<value>",
+    })
     if err != nil {
         log.Fatal(err)
     }
@@ -232,12 +237,9 @@ func main() {
         paraph.WithSecurity(os.Getenv("PARAPH_BEARER_AUTH")),
     )
 
-    res, err := s.Templates.Create(ctx, operations.CreateCreateTemplateRequestRequestBody2(
-        operations.RequestBody2{
-            Name: "<value>",
-            FileURL: "https://dependent-graffiti.name/",
-        },
-    ))
+    res, err := s.Templates.Create(ctx, operations.CreateTemplateRequest{
+        Name: "<value>",
+    })
     if err != nil {
         log.Fatal(err)
     }
@@ -263,7 +265,8 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 400, 429           | application/json   |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500                | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |
 
 ## Get
@@ -316,7 +319,8 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 404                | application/json   |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500                | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |
 
 ## Update
@@ -461,7 +465,8 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 400, 404           | application/json   |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500                | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |
 
 ## Delete
@@ -514,7 +519,8 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 404                | application/json   |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500                | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |
 
 ## Download
@@ -567,5 +573,6 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 404                | application/json   |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500                | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |

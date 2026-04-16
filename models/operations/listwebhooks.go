@@ -41,6 +41,8 @@ type ListWebhooksResponse struct {
 	HTTPMeta components.HTTPMetadata `json:"-"`
 	// Paginated list of webhooks for the current group
 	WebhookListResponse *components.WebhookListResponse
+
+	Next func() (*ListWebhooksResponse, error)
 }
 
 func (l ListWebhooksResponse) MarshalJSON() ([]byte, error) {

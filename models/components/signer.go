@@ -7,37 +7,19 @@ import (
 	"time"
 )
 
-type SignerStatus string
-
-const (
-	SignerStatusPending   SignerStatus = "pending"
-	SignerStatusSigned    SignerStatus = "signed"
-	SignerStatusExpired   SignerStatus = "expired"
-	SignerStatusError     SignerStatus = "error"
-	SignerStatusCancelled SignerStatus = "cancelled"
-)
-
-func (e SignerStatus) ToPointer() *SignerStatus {
-	return &e
-}
-
-// IsExact returns true if the value matches a known enum value, false otherwise.
-func (e *SignerStatus) IsExact() bool {
-	if e != nil {
-		switch *e {
-		case "pending", "signed", "expired", "error", "cancelled":
-			return true
-		}
-	}
-	return false
-}
-
 type Signer struct {
 	ID string `json:"id"`
 	// Role label for this signer (e.g. "Employee", "Manager")
-	SignerLabel    string       `json:"signer_label"`
-	RecipientEmail string       `json:"recipient_email"`
-	Status         SignerStatus `json:"status"`
+	SignerLabel    string `json:"signer_label"`
+	RecipientEmail string `json:"recipient_email"`
+	// Per-signer status.
+	// - `pending` — signing link sent, awaiting signer
+	// - `signed` — signer completed
+	// - `expired` — signer did not sign before `expires_at`
+	// - `error` — terminal failure for this signer
+	// - `cancelled` — parent request was cancelled
+	//
+	Status SignerStatus `json:"status"`
 	// When the signing link expires
 	ExpiresAt *time.Time `json:"expires_at,omitzero"`
 	// When the signer completed signing

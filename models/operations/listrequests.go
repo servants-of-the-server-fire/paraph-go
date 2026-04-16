@@ -3,51 +3,16 @@
 package operations
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/servants-of-the-server-fire/paraph-go/internal/utils"
 	"github.com/servants-of-the-server-fire/paraph-go/models/components"
 	"time"
 )
 
-// Status - Filter by request status
-type Status string
-
-const (
-	StatusSuccess   Status = "success"
-	StatusError     Status = "error"
-	StatusPending   Status = "pending"
-	StatusCancelled Status = "cancelled"
-)
-
-func (e Status) ToPointer() *Status {
-	return &e
-}
-func (e *Status) UnmarshalJSON(data []byte) error {
-	var v string
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-	switch v {
-	case "success":
-		fallthrough
-	case "error":
-		fallthrough
-	case "pending":
-		fallthrough
-	case "cancelled":
-		*e = Status(v)
-		return nil
-	default:
-		return fmt.Errorf("invalid value for Status: %v", v)
-	}
-}
-
 type ListRequestsRequest struct {
 	Page     *int64 `default:"1" queryParam:"style=form,explode=true,name=page"`
 	PageSize *int64 `default:"20" queryParam:"style=form,explode=true,name=page_size"`
 	// Filter by request status
-	Status *Status `queryParam:"style=form,explode=true,name=status"`
+	Status *components.RequestStatus `queryParam:"style=form,explode=true,name=status"`
 	// Only return requests created on or after this timestamp (RFC 3339)
 	From *time.Time `queryParam:"style=form,explode=true,name=from"`
 	// Only return requests created on or before this timestamp (RFC 3339)
@@ -83,7 +48,7 @@ func (l *ListRequestsRequest) GetPageSize() *int64 {
 	return l.PageSize
 }
 
-func (l *ListRequestsRequest) GetStatus() *Status {
+func (l *ListRequestsRequest) GetStatus() *components.RequestStatus {
 	if l == nil {
 		return nil
 	}
@@ -122,6 +87,8 @@ type ListRequestsResponse struct {
 	HTTPMeta components.HTTPMetadata `json:"-"`
 	// Paginated list of requests
 	RequestListResponse *components.RequestListResponse
+
+	Next func() (*ListRequestsResponse, error)
 }
 
 func (l ListRequestsResponse) MarshalJSON() ([]byte, error) {

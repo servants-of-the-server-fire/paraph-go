@@ -41,6 +41,8 @@ type ListTemplatesResponse struct {
 	HTTPMeta components.HTTPMetadata `json:"-"`
 	// Paginated list of templates
 	TemplateListResponse *components.TemplateListResponse
+
+	Next func() (*ListTemplatesResponse, error)
 }
 
 func (l ListTemplatesResponse) MarshalJSON() ([]byte, error) {

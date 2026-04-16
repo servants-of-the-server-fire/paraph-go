@@ -487,6 +487,25 @@ components:
             signer_id: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
             signer_label: "Employee"
             recipient_email: "jane.doe@example.com"
+    RequestStatus:
+      type: string
+      enum: [success, error, pending, cancelled]
+      description: |
+        Lifecycle status of a document request.
+        - `success` — fill completed (and all signers signed, if any)
+        - `error` — terminal failure
+        - `pending` — awaiting signer action
+        - `cancelled` — caller cancelled before completion
+    SignerStatus:
+      type: string
+      enum: [pending, signed, expired, error, cancelled]
+      description: |
+        Per-signer status.
+        - `pending` — signing link sent, awaiting signer
+        - `signed` — signer completed
+        - `expired` — signer did not sign before `expires_at`
+        - `error` — terminal failure for this signer
+        - `cancelled` — parent request was cancelled
     DocumentRequestSummary:
       type: object
       description: Compact request representation returned in list endpoints. Use GET /requests/{id} for full details including inputs, metadata, and signers.
@@ -502,8 +521,7 @@ components:
           type: string
           maxLength: 255
         status:
-          type: string
-          enum: [success, error, pending, cancelled]
+          $ref: '#/components/schemas/RequestStatus'
         has_signing:
           type: boolean
         created_at:
@@ -540,9 +558,7 @@ components:
           maxLength: 1024
           description: Custom message included in signing emails
         status:
-          type: string
-          enum: [success, error, pending, cancelled]
-          description: Request status
+          $ref: '#/components/schemas/RequestStatus'
         has_signing:
           type: boolean
           description: Whether this request includes signers
@@ -603,8 +619,7 @@ components:
           type: string
           format: email
         status:
-          type: string
-          enum: [pending, signed, expired, error, cancelled]
+          $ref: '#/components/schemas/SignerStatus'
         expires_at:
           type: string
           format: date-time
@@ -770,6 +785,16 @@ paths:
                     signing_requests: 15
                     templates: 3
                     members: 2
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-group: accounts
       x-speakeasy-name-override: get
   /templates:
@@ -778,6 +803,14 @@ paths:
       summary: List templates
       operationId: listTemplates
       description: Returns all templates in your account, newest first.
+      x-speakeasy-pagination:
+        type: offsetLimit
+        inputs:
+          - name: page
+            in: parameters
+            type: page
+        outputs:
+          numPages: $.list_info.num_pages
       parameters:
         - $ref: '#/components/parameters/page'
         - $ref: '#/components/parameters/page_size'
@@ -805,19 +838,32 @@ paths:
                   num_pages: 1
                   num_results: 2
                   page_size: 20
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: list
     post:
       tags: [Templates]
       summary: Create template
       operationId: createTemplate
-      description: Upload a PDF with named form fields. Paraph detects the fields automatically.
+      description: |
+        Upload a PDF with named form fields. Paraph detects the fields automatically.
+
+        **Provide exactly one of `file` or `file_url`.** Requests with neither or both return `400 Bad Request`. This constraint is validated server-side — OpenAPI doesn't support expressing `oneOf` inside a multipart request body, so it's documented in prose.
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
               type: object
-              description: Upload a PDF template with named form fields.
+              description: Upload a PDF template with named form fields. Provide exactly one of `file` or `file_url`.
               required: [name]
               properties:
                 name:
@@ -827,14 +873,11 @@ paths:
                 file:
                   type: string
                   format: binary
-                  description: PDF file with AcroForm fields
+                  description: PDF file with AcroForm fields (mutually exclusive with `file_url`)
                 file_url:
                   type: string
                   format: uri
-                  description: URL to fetch the PDF from
-              oneOf:
-                - required: [file]
-                - required: [file_url]
+                  description: URL to fetch the PDF from (mutually exclusive with `file`)
       responses:
         '201':
           description: Template created
@@ -898,6 +941,12 @@ paths:
                       error_msg: "failed to download PDF from URL"
         '429':
           $ref: '#/components/responses/TooManyRequests'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: create
   /templates/{id}:
     get:
@@ -942,6 +991,14 @@ paths:
                   signature_placements: []
         '404':
           $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: get
     patch:
       tags: [Templates]
@@ -1046,6 +1103,12 @@ paths:
                       error_msg: "signer_label contains invalid characters"
         '404':
           $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: update
     delete:
       tags: [Templates]
@@ -1064,6 +1127,14 @@ paths:
           description: Template deleted
         '404':
           $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: delete
   /templates/{id}/download:
     get:
@@ -1093,6 +1164,14 @@ paths:
                 format: binary
         '404':
           $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: download
   /requests:
     post:
@@ -1294,12 +1373,26 @@ paths:
           $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: create
     get:
       tags: [Requests]
       summary: List requests
       operationId: listRequests
       description: Returns all requests in your account, newest first.
+      x-speakeasy-pagination:
+        type: offsetLimit
+        inputs:
+          - name: page
+            in: parameters
+            type: page
+        outputs:
+          numPages: $.list_info.num_pages
       parameters:
         - $ref: '#/components/parameters/page'
         - $ref: '#/components/parameters/page_size'
@@ -1307,8 +1400,7 @@ paths:
           in: query
           required: false
           schema:
-            type: string
-            enum: [success, error, pending, cancelled]
+            $ref: '#/components/schemas/RequestStatus'
           description: Filter by request status
         - name: from
           in: query
@@ -1364,6 +1456,16 @@ paths:
                   num_pages: 1
                   num_results: 2
                   page_size: 20
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: list
   /requests/{id}:
     get:
@@ -1407,6 +1509,14 @@ paths:
                       signed_at: "2026-03-23T14:22:00Z"
         '404':
           $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: get
   /requests/{id}/download:
     get:
@@ -1440,6 +1550,14 @@ paths:
                 format: binary
         '404':
           $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: download
   /requests/{id}/cancel:
     post:
@@ -1478,6 +1596,14 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: cancel
   /requests/{id}/signers/{sid}/resend:
     post:
@@ -1522,6 +1648,16 @@ paths:
                   expires_at: "2026-04-12T10:30:00Z"
         '409':
           $ref: '#/components/responses/Conflict'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
   /requests/{id}/signers/{sid}/signature:
     get:
       tags: [Signers]
@@ -1555,6 +1691,14 @@ paths:
                 format: binary
         '404':
           $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: downloadSignature
   /webhooks:
     post:
@@ -1604,12 +1748,26 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '429':
           $ref: '#/components/responses/TooManyRequests'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: create
     get:
       tags: [Webhooks]
       summary: List webhooks
       operationId: listWebhooks
       description: Returns all webhooks registered in your account, newest first.
+      x-speakeasy-pagination:
+        type: offsetLimit
+        inputs:
+          - name: page
+            in: parameters
+            type: page
+        outputs:
+          numPages: $.list_info.num_pages
       parameters:
         - $ref: '#/components/parameters/page'
         - $ref: '#/components/parameters/page_size'
@@ -1633,6 +1791,16 @@ paths:
                   num_pages: 1
                   num_results: 1
                   page_size: 20
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: list
   /webhooks/{id}:
     get:
@@ -1664,6 +1832,14 @@ paths:
                   updated_at: "2026-03-28T17:35:16-05:00"
         '404':
           $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: get
     patch:
       tags: [Webhooks]
@@ -1710,6 +1886,14 @@ paths:
                   updated_at: "2026-03-28T17:35:16-05:00"
         '404':
           $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: update
     delete:
       tags: [Webhooks]
@@ -1728,6 +1912,14 @@ paths:
           description: Webhook deleted
         '404':
           $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: delete
   /webhooks/{id}/test:
     post:
@@ -1751,4 +1943,12 @@ paths:
           $ref: '#/components/responses/NotFound'
         '502':
           $ref: '#/components/responses/BadGateway'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
       x-speakeasy-name-override: test

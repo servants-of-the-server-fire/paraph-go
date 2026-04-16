@@ -7,39 +7,21 @@ import (
 	"time"
 )
 
-type DocumentRequestSummaryStatus string
-
-const (
-	DocumentRequestSummaryStatusSuccess   DocumentRequestSummaryStatus = "success"
-	DocumentRequestSummaryStatusError     DocumentRequestSummaryStatus = "error"
-	DocumentRequestSummaryStatusPending   DocumentRequestSummaryStatus = "pending"
-	DocumentRequestSummaryStatusCancelled DocumentRequestSummaryStatus = "cancelled"
-)
-
-func (e DocumentRequestSummaryStatus) ToPointer() *DocumentRequestSummaryStatus {
-	return &e
-}
-
-// IsExact returns true if the value matches a known enum value, false otherwise.
-func (e *DocumentRequestSummaryStatus) IsExact() bool {
-	if e != nil {
-		switch *e {
-		case "success", "error", "pending", "cancelled":
-			return true
-		}
-	}
-	return false
-}
-
 // DocumentRequestSummary - Compact request representation returned in list endpoints. Use GET /requests/{id} for full details including inputs, metadata, and signers.
 type DocumentRequestSummary struct {
-	ID         string                       `json:"id"`
-	TemplateID string                       `json:"template_id"`
-	Title      *string                      `json:"title,omitzero"`
-	Status     DocumentRequestSummaryStatus `json:"status"`
-	HasSigning bool                         `json:"has_signing"`
-	CreatedAt  time.Time                    `json:"created_at"`
-	UpdatedAt  time.Time                    `json:"updated_at"`
+	ID         string  `json:"id"`
+	TemplateID string  `json:"template_id"`
+	Title      *string `json:"title,omitzero"`
+	// Lifecycle status of a document request.
+	// - `success` — fill completed (and all signers signed, if any)
+	// - `error` — terminal failure
+	// - `pending` — awaiting signer action
+	// - `cancelled` — caller cancelled before completion
+	//
+	Status     RequestStatus `json:"status"`
+	HasSigning bool          `json:"has_signing"`
+	CreatedAt  time.Time     `json:"created_at"`
+	UpdatedAt  time.Time     `json:"updated_at"`
 }
 
 func (d DocumentRequestSummary) MarshalJSON() ([]byte, error) {
@@ -74,9 +56,9 @@ func (d *DocumentRequestSummary) GetTitle() *string {
 	return d.Title
 }
 
-func (d *DocumentRequestSummary) GetStatus() DocumentRequestSummaryStatus {
+func (d *DocumentRequestSummary) GetStatus() RequestStatus {
 	if d == nil {
-		return DocumentRequestSummaryStatus("")
+		return RequestStatus("")
 	}
 	return d.Status
 }

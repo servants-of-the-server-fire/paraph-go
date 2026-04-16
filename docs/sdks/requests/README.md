@@ -436,10 +436,11 @@ func main() {
 
 ### Errors
 
-| Error Type         | Status Code        | Content Type       |
-| ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 400, 409, 429      | application/json   |
-| apierrors.APIError | 4XX, 5XX           | \*/\*              |
+| Error Type              | Status Code             | Content Type            |
+| ----------------------- | ----------------------- | ----------------------- |
+| apierrors.Error         | 400, 401, 404, 409, 429 | application/json        |
+| apierrors.Error         | 500                     | application/json        |
+| apierrors.APIError      | 4XX, 5XX                | \*/\*                   |
 
 ## List
 
@@ -471,7 +472,19 @@ func main() {
         log.Fatal(err)
     }
     if res.RequestListResponse != nil {
-        // handle response
+        for {
+            // handle items
+
+            res, err = res.Next()
+
+            if err != nil {
+                // handle error
+            }
+
+            if res == nil {
+                break
+            }
+        }
     }
 }
 ```
@@ -492,6 +505,8 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500                | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |
 
 ## Get
@@ -544,7 +559,8 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 404                | application/json   |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500                | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |
 
 ## Download
@@ -600,7 +616,8 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 404                | application/json   |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500                | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |
 
 ## Cancel
@@ -654,7 +671,8 @@ func main() {
 
 ### Errors
 
-| Error Type         | Status Code        | Content Type       |
-| ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 404, 409           | application/json   |
-| apierrors.APIError | 4XX, 5XX           | \*/\*              |
+| Error Type              | Status Code             | Content Type            |
+| ----------------------- | ----------------------- | ----------------------- |
+| apierrors.Error         | 400, 401, 404, 409, 429 | application/json        |
+| apierrors.Error         | 500                     | application/json        |
+| apierrors.APIError      | 4XX, 5XX                | \*/\*                   |

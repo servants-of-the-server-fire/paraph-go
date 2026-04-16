@@ -2,8 +2,8 @@ speakeasyVersion: 1.761.5
 sources:
     Paraph API:
         sourceNamespace: paraph-api
-        sourceRevisionDigest: sha256:508ab565e13b1ed55f2bf2fc4a2d5c25fdbaf3428a6bef7ac00800eb7b9d3c5e
-        sourceBlobDigest: sha256:fdf7a9959eb82e7960d54c4948f09bbce539188283caef7b83ee7c2c391affe8
+        sourceRevisionDigest: sha256:c1d2f67e87d6a36a40a02b7501f8724abcbec820164f162b8952c37b56fb0350
+        sourceBlobDigest: sha256:08585cca7cfb3f06f01f93e01e670e5408ad2b7912e85808cf4bef6b186b8b14
         tags:
             - latest
             - 1.0.0
@@ -11,10 +11,10 @@ targets:
     paraph:
         source: Paraph API
         sourceNamespace: paraph-api
-        sourceRevisionDigest: sha256:508ab565e13b1ed55f2bf2fc4a2d5c25fdbaf3428a6bef7ac00800eb7b9d3c5e
-        sourceBlobDigest: sha256:fdf7a9959eb82e7960d54c4948f09bbce539188283caef7b83ee7c2c391affe8
+        sourceRevisionDigest: sha256:c1d2f67e87d6a36a40a02b7501f8724abcbec820164f162b8952c37b56fb0350
+        sourceBlobDigest: sha256:08585cca7cfb3f06f01f93e01e670e5408ad2b7912e85808cf4bef6b186b8b14
         codeSamplesNamespace: paraph-api-go-code-samples
-        codeSamplesRevisionDigest: sha256:320f662d021ad7a690f270e6a2cb19c962fb73e9f358ea590135f07f621a54ca
+        codeSamplesRevisionDigest: sha256:b9160ff29140d35a180e94644e2f92a9f881cc04caf0760eebf8daa19d1ba05c
 workflow:
     workflowVersion: 1.0.0
     speakeasyVersion: latest

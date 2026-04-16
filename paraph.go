@@ -237,9 +237,9 @@ func WithTimeout(timeout time.Duration) SDKOption {
 // New creates a new instance of the SDK with the provided options
 func New(opts ...SDKOption) *Paraph {
 	sdk := &Paraph{
-		SDKVersion: "0.1.0",
+		SDKVersion: "0.2.0",
 		sdkConfiguration: config.SDKConfiguration{
-			UserAgent:  "speakeasy-sdk/go 0.1.0 2.879.13 1.0.0 github.com/servants-of-the-server-fire/paraph-go",
+			UserAgent:  "speakeasy-sdk/go 0.2.0 2.879.13 1.0.0 github.com/servants-of-the-server-fire/paraph-go",
 			ServerList: ServerList,
 		},
 		hooks: hooks.New(),

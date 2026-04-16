@@ -1,16 +1,16 @@
 lockVersion: 2.0.0
 id: a4afca45-c9de-47ea-bb27-6e8cf9ff2967
 management:
-  docChecksum: ffc4557f281cc70edd316065fa5abc93
+  docChecksum: 46796261bf2ccfe3e2b60e932e945d93
   docVersion: 1.0.0
   speakeasyVersion: 1.761.5
   generationVersion: 2.879.13
-  releaseVersion: 0.1.0
-  configChecksum: 90e2592f46c1b22ba2a7fe3f9d5e41f2
+  releaseVersion: 0.2.0
+  configChecksum: 185d7b4c19107789848f7e7f67ad1ff0
 persistentEdits:
-  generation_id: ebfc67c3-101d-4fe5-b27a-3ec637566b33
-  pristine_commit_hash: df1d14d1c70db2b103373af51e5fa1b38c12f2db
-  pristine_tree_hash: 007e9fe09ac540e2574926da743e1d9ae03b2e05
+  generation_id: 4d0217ba-174e-4599-b20b-8fd7389e6082
+  pristine_commit_hash: c119cf54e09defe9e3554732894ffc3d838c7fdc
+  pristine_tree_hash: 03943e25922da9bf234b10d3db7446ed2632ed87
 features:
   go:
     additionalDependencies: 0.1.0
@@ -28,10 +28,10 @@ features:
     groups: 2.81.3
     intellisenseMarkdownSupport: 0.1.0
     nameOverrides: 2.81.4
+    pagination: 2.82.6
     responseFormat: 0.1.2
     retries: 2.84.2
     sdkHooks: 0.3.0
-    unions: 2.87.6
     uploadStreams: 0.1.0
 trackedFiles:
   .devcontainer/README.md:
@@ -56,8 +56,8 @@ trackedFiles:
     pristine_git_object: 5fddb3201bf3eba4c382010e3348b1eeff794739
   accounts.go:
     id: c7bd7b26c9d3
-    last_write_checksum: sha1:22414767d65dc223839cfe4037f8b36ebd9d82de
-    pristine_git_object: ecd61abe1190c774fe5fd502997548087d9cd7ca
+    last_write_checksum: sha1:1f04428849f5a96065e856cd00def2f4810e4cbf
+    pristine_git_object: d8d1a18833f0380b5d2b4feae53bf866b8541d94
   docs/models/apierrors/error.md:
     id: 7c6e7719d689
     last_write_checksum: sha1:c9ec69981e37e276137d131d249bc9dc22da137b
@@ -68,20 +68,12 @@ trackedFiles:
     pristine_git_object: e27ea134aefcfe9cd5837bc363c8db66199744bf
   docs/models/components/documentrequest.md:
     id: 8227f675f311
-    last_write_checksum: sha1:19698ff9af320544d3bdf935fd30ea365aae098b
-    pristine_git_object: c8f31e716b9e1920dab3ef81e2772be1185a56e3
-  docs/models/components/documentrequeststatus.md:
-    id: 28b67e2e9c04
-    last_write_checksum: sha1:22fad444ed52acfd63a7e207cd811a4b4221c317
-    pristine_git_object: 99b8c6f0dfbfb9e805090458ee082658f4f56fbe
+    last_write_checksum: sha1:744408d91652bf855099eb1065dd14effa24c6e8
+    pristine_git_object: 49ab04749709e6a64adf626ee6ca610c6a291683
   docs/models/components/documentrequestsummary.md:
     id: fec1008a2e82
-    last_write_checksum: sha1:7823c7c6fb6c6f91c7283be490822ee752e40eee
-    pristine_git_object: 7ee986c78e93d4591e1b70cbb098dafbeb17cdfd
-  docs/models/components/documentrequestsummarystatus.md:
-    id: fef706df25a1
-    last_write_checksum: sha1:faaa481e5c127192af7e118106af43dd091ef275
-    pristine_git_object: b90c3eb253375015535b0839a0b8a1e67db139f3
+    last_write_checksum: sha1:5d1e0d5fbd78c521bf322f48d02ec77b4785dcec
+    pristine_git_object: 21ee409c83c9da163c84bf64df7e87ae23ab5e94
   docs/models/components/error.md:
     id: 8ccbea40d025
     last_write_checksum: sha1:6b6d9901aae84ca4c2c51d54d9d0e9ce8b6e4014
@@ -118,6 +110,10 @@ trackedFiles:
     id: 53f7341ee9a7
     last_write_checksum: sha1:79cfefce1fdb0345a8bb3853b62567b6b43b86ed
     pristine_git_object: 0d46d3dc43511a153213922342a76b9db7f2d9c8
+  docs/models/components/requeststatus.md:
+    id: 7d59288ad19c
+    last_write_checksum: sha1:ffffc7e9d3424532e48f5c938bf929ab0e1fd511
+    pristine_git_object: 5c10026674a48aa56273327f1f898e4ec667cf2c
   docs/models/components/security.md:
     id: 54906b49ea28
     last_write_checksum: sha1:3d20d8f28e0ecfee6550ce09129b5ec06e25c24d
@@ -132,16 +128,16 @@ trackedFiles:
     pristine_git_object: 2a7d8731993b198baf27eb9606fe9f03a68a237a
   docs/models/components/signer.md:
     id: 55f087340ce3
-    last_write_checksum: sha1:50e45f9e2031b1c3ee9c2c881b7d665c3778dd68
-    pristine_git_object: c4bf30e737c4ce01070c66ede28f6e91f4b81d58
+    last_write_checksum: sha1:5aebabdf0ee379399bb9c76084bf14f61b48bbdd
+    pristine_git_object: 3165f6cb0a18d9ec9d404811088cb3e603552c91
   docs/models/components/signerinput.md:
     id: 779caa2800b5
     last_write_checksum: sha1:896e5f6d1c326e23c4ace6d0bbdf549bbc00c6f3
     pristine_git_object: e78a34472eef68708263213d4b9adcb0e093a6bb
   docs/models/components/signerstatus.md:
     id: b119b0e434b5
-    last_write_checksum: sha1:f68e18780084ace4e5dd1c05c46dff8ff57509c4
-    pristine_git_object: 3a2554cf18c0d8a03d6c50bd6ad3d933c6c5c599
+    last_write_checksum: sha1:ddef498b156e8b2d31d48df29d9eaffd83deb5d8
+    pristine_git_object: 9da8b97a9a2bae6b71639337a8f67bcad49ba7c8
   docs/models/components/template.md:
     id: 6dc6c0f21c98
     last_write_checksum: sha1:8c714d4a2407c54e8a3043a8753e52375300eb5c
@@ -204,8 +200,8 @@ trackedFiles:
     pristine_git_object: 7f4980ce5eeab5bf17fca3da2a947ae2459d9e95
   docs/models/operations/createtemplaterequest.md:
     id: 7808f75aab36
-    last_write_checksum: sha1:43c93275a0587723e5de446de4ec80c7006f599e
-    pristine_git_object: ad8c1ed00569cc6f7b2a5073e512aba48a2c62d0
+    last_write_checksum: sha1:9a33801dac15a13a21bba845689f227c0b91208c
+    pristine_git_object: ab2db93f172616233ea3c84555f0e0553fda36c3
   docs/models/operations/createtemplateresponse.md:
     id: ce0f9dbe0468
     last_write_checksum: sha1:b7f9a289f9b26e21d2369460043c608dad4343db
@@ -262,14 +258,10 @@ trackedFiles:
     id: a8615c58014e
     last_write_checksum: sha1:8eff54ce589743309b98258994e05656bb1528fa
     pristine_git_object: d2b10355a9ef843006e36077e1c565cd544b3a94
-  docs/models/operations/file1.md:
-    id: 8c9e4768d581
-    last_write_checksum: sha1:d948609b8e82e8275d721158a3d679883c11ad20
-    pristine_git_object: 7288b34c8d6b94a5444ecb781b2624f6300ae932
-  docs/models/operations/file2.md:
-    id: 7573f5f2b61d
-    last_write_checksum: sha1:9f360cb9091065db57e851f47eb3124cac054323
-    pristine_git_object: dd382a19bb46dbbc96c5b3f097185a33bed6ec0d
+  docs/models/operations/file.md:
+    id: d791b792f60f
+    last_write_checksum: sha1:514335a2e50175dff692641331f166ef1775d7b8
+    pristine_git_object: cde537f245c884f4055a65b38e4bfe61478d1706
   docs/models/operations/getaccountresponse.md:
     id: fe07e5086216
     last_write_checksum: sha1:3563e3f87e872636347610a8f907deabccf43f5d
@@ -304,8 +296,8 @@ trackedFiles:
     pristine_git_object: 524ada2d58fa26019bfd51ab71eec9dad52c4caa
   docs/models/operations/listrequestsrequest.md:
     id: fd2df4d618d8
-    last_write_checksum: sha1:09c5a44372c00aa19d9569d335e64e3de4137dc5
-    pristine_git_object: 8b03681da4afbb7e19c1987cdb8227c8b84ac2af
+    last_write_checksum: sha1:147196cebad9de38ae460e2e028b5f0bbb72c520
+    pristine_git_object: ef493238a159b3c76ab5952fe5c90f1e55708eef
   docs/models/operations/listrequestsresponse.md:
     id: 546a71cabe5c
     last_write_checksum: sha1:ca5d904343638ece6877d1d89de85d70dac74593
@@ -330,14 +322,6 @@ trackedFiles:
     id: 2ac1bd52a5fb
     last_write_checksum: sha1:cf683ae8f80f7b9e30783a74a2648c421030877a
     pristine_git_object: 93c2d86dddb5bd3e8581a07247e38d2a311891e9
-  docs/models/operations/requestbody1.md:
-    id: 871009b490c3
-    last_write_checksum: sha1:342a46c4aed7bbca6f35510e9b3a38c4985a5659
-    pristine_git_object: 5fdde8b537239e1b7bd4253ff3cdcd1cebaed1b6
-  docs/models/operations/requestbody2.md:
-    id: 2456e22c3031
-    last_write_checksum: sha1:e09076d8b5d78a0e3dc06881f313dcd2b4598152
-    pristine_git_object: 90eb042ced5f9ab9a94bb8ffc84f76742abaec4b
   docs/models/operations/resendsigninglinkrequest.md:
     id: 93dfbf6cf839
     last_write_checksum: sha1:ab13c59b64772407731f76935c88a590b36eab6f
@@ -350,10 +334,6 @@ trackedFiles:
     id: 9906ac1f2571
     last_write_checksum: sha1:62da193dce526e4249c6cf97f03f23f80ce12a32
     pristine_git_object: baa9a502b2d6132916f03024a4aa5afe0142ba3f
-  docs/models/operations/status.md:
-    id: a42267b6f2cb
-    last_write_checksum: sha1:572b4c39dc55f2bf584e11e5c8d282c2fc7b30c1
-    pristine_git_object: 3d8ac4fe1d898901556a4269232cb1d53a11f4b3
   docs/models/operations/testwebhookrequest.md:
     id: d7f00d057ac7
     last_write_checksum: sha1:31ef8fb83c471ba1f26556d8bdc628ecc35afeab
@@ -392,28 +372,28 @@ trackedFiles:
     pristine_git_object: 762aefc2fd56b0b3298c6456e5d38a96b022567d
   docs/sdks/accounts/README.md:
     id: d6c754b1ca96
-    last_write_checksum: sha1:6f312793772f52e4089fb89b2cb823723173dcae
-    pristine_git_object: ca09bf6a94e858e69e56f4e656d6bfaf2e96020d
+    last_write_checksum: sha1:0af4b96af3d75086a7a2d73bb25a0aadd5eae4b9
+    pristine_git_object: 762508ae04c8e9fea7f1103ff206c000a1ad5eb6
   docs/sdks/requests/README.md:
     id: 3959a8b5b5bc
-    last_write_checksum: sha1:f5871bc9a2e4ac48940f196c8ec48e16630914e5
-    pristine_git_object: 3a43fab6cfba9ee176632024ee141b995b665d6b
+    last_write_checksum: sha1:891e7f7eb758ab278617db46833d6daffc90ba83
+    pristine_git_object: d0e92e2899eac11caf59bb37a812cb9368292859
   docs/sdks/signers/README.md:
     id: f8b9957ed773
-    last_write_checksum: sha1:23f15d561ff4d522672872431f0652c4d35206a4
-    pristine_git_object: 7cb78235be0cba43f715e0c9ca075482544da8a2
+    last_write_checksum: sha1:db9a2102feacd882cdf16acc77163170844e6a8d
+    pristine_git_object: 9b30c3653f18ad5babc68a268f2ab60a39dca487
   docs/sdks/templates/README.md:
     id: baedad2f2f11
-    last_write_checksum: sha1:be2fdabab4e1fd191c1d9502bb82656748e7937a
-    pristine_git_object: 217fd70a72d83c9f8c86e2ab5bbaa88b16831213
+    last_write_checksum: sha1:ff3f30baa7a67d0babe5cf389da659e414dddfc8
+    pristine_git_object: 0e61bab8ceda12c3828768c697a3c945fc7ae193
   docs/sdks/webhooks/README.md:
     id: e21b32d786a4
-    last_write_checksum: sha1:182e4e0dc861c16310ed0494565de4845671e07d
-    pristine_git_object: 193b5d2efc2278b849d6cb70fc781dfe7bf2eaf2
+    last_write_checksum: sha1:2c6fafb096a4697c4ce5fb009129a548b976a4bf
+    pristine_git_object: 7ae1d244674d425b172c117cce2bcc24eabedd7a
   go.mod:
     id: c47645c391ad
-    last_write_checksum: sha1:7f2ddf92a5c48fb21f49f14d00b9dd36b8d4da93
-    pristine_git_object: 96225a4dd951488c4d83cb1c2c41fe822ff6c26b
+    last_write_checksum: sha1:706d15142204fc119867e187860a48f7eab76d66
+    pristine_git_object: 97556f032cec3497bc857f73f8f0f5f50ab23530
   internal/config/sdkconfiguration.go:
     id: 33b8bfac5265
     last_write_checksum: sha1:89c2797d6ecb38b5402f65935207bb0c47d78765
@@ -488,12 +468,12 @@ trackedFiles:
     pristine_git_object: c7b7b16c00a92151d5c4c94882b49cd66ce37a99
   models/components/documentrequest.go:
     id: 293c70f99188
-    last_write_checksum: sha1:42e8c28ce33d87ceb9d9020668d19c4471f87512
-    pristine_git_object: a4eb0b0bec45b419bde61d4a8fbbf6770c217c95
+    last_write_checksum: sha1:5da2dab3132c6efbe2a630b351d7706c4d9d3107
+    pristine_git_object: fa7d88f24704c2dc3d76d23350bd4e5e515bb0d7
   models/components/documentrequestsummary.go:
     id: fb776eed254e
-    last_write_checksum: sha1:5524405ed8f2d4206841eff7921b9407690278aa
-    pristine_git_object: fad71da50641f197294edba78771cbb3b276298f
+    last_write_checksum: sha1:aa66e7113b21eba083a2a2e5fe57218fb5bce145
+    pristine_git_object: 10008a49a4aa72150dce56180343899b064a1c8e
   models/components/error.go:
     id: 101a721ad2e7
     last_write_checksum: sha1:16bb45c2e543f12192269024342a13f57016a44c
@@ -518,6 +498,10 @@ trackedFiles:
     id: b25ec227d091
     last_write_checksum: sha1:746769bf3f719298d1e44cde25f08f4455889e02
     pristine_git_object: 2a13153e9143b027608aa183ae4c3289277d9933
+  models/components/requeststatus.go:
+    id: fadef9006b26
+    last_write_checksum: sha1:1032c6c7937a97bb8ab0af4288416a98e9d789a4
+    pristine_git_object: 8652ac4a822b74c8895b180988ebe1b5b9859d4f
   models/components/security.go:
     id: 3a5eba5fe9e0
     last_write_checksum: sha1:c18ef91a4a2778881584d54099c6ac24d1ddd01c
@@ -532,12 +516,16 @@ trackedFiles:
     pristine_git_object: 239dd42fed532329bb92af1d21d3d61f1d79ba84
   models/components/signer.go:
     id: 1fceee7454ef
-    last_write_checksum: sha1:f9fe117b246ac5c576c1e6637b6b911e2bbd3232
-    pristine_git_object: f251e3a061d5545b88c9f9a1c7f5e9d4601bf01a
+    last_write_checksum: sha1:05d6acc6f8c230ac4b906f6387cde71df83f6dcc
+    pristine_git_object: e4ebca8949982de2540d3e90b723759385a9ac9d
   models/components/signerinput.go:
     id: 33b443466a29
     last_write_checksum: sha1:f4dd7c0c16e7d85571e3d92d4c2302be81e80626
     pristine_git_object: 90303937705aa5ecb65e6b4d50e6f09e5325041d
+  models/components/signerstatus.go:
+    id: e4275e263e0d
+    last_write_checksum: sha1:135d6a7cdd553a7d437239c1288fb1736bcb5d44
+    pristine_git_object: 0ca00928a033a6250e12edf7053eaa25d80adbe9
   models/components/template.go:
     id: 840eeb2ea948
     last_write_checksum: sha1:5007db355a54c046ec2ebfc72ee751c72a9c182f
@@ -580,8 +568,8 @@ trackedFiles:
     pristine_git_object: 622ae44c6ef81fd3b2e183e4fd15caf2dd6ab4e8
   models/operations/createtemplate.go:
     id: 23c8cb307942
-    last_write_checksum: sha1:50b5072e8ba3add521dc96e3138d1608a2e1b993
-    pristine_git_object: 7abb0b5bc70bfc4179e90e7af1a52659fb4be03e
+    last_write_checksum: sha1:387e6082d93a4de34837d3b8091106d6dc3004ff
+    pristine_git_object: 5a53d98aad9e01ae627d3ef4016cfd1fc70289a7
   models/operations/createwebhook.go:
     id: 903a882deaa7
     last_write_checksum: sha1:613c00c47ff9bbd1254636ff0c88716a01fed91a
@@ -624,16 +612,16 @@ trackedFiles:
     pristine_git_object: 5457681f09b3de25820a494b80104a1c86d95dfd
   models/operations/listrequests.go:
     id: 94f1b4b7c110
-    last_write_checksum: sha1:64b51392131bd8c7bcb604fd44e4f8526c0c5143
-    pristine_git_object: affe01b4b1c1411254590a374920bdcc1ed0dba8
+    last_write_checksum: sha1:89935dd12d4cf2fdeed492f9b55559920bdb3df0
+    pristine_git_object: fb27c6f4024c771ad50406f5eb1b0e69891b46e8
   models/operations/listtemplates.go:
     id: e502ff0ac635
-    last_write_checksum: sha1:2c7dce3a9fd6c8b0b92e5a72841b4ab5f2182c43
-    pristine_git_object: e758700e1ad0cb0c685eff33694571ed84f1bf0b
+    last_write_checksum: sha1:775c0cbcc18b7f7f44041b4624ac1c9e66af0c1b
+    pristine_git_object: 9e6cdcbb6d3b36c583e446f7368e149d8a629748
   models/operations/listwebhooks.go:
     id: 440f17404bb5
-    last_write_checksum: sha1:5205570cd06dcd6c114dcb89806406a881945797
-    pristine_git_object: a30bacb9436bcaddb2b2152df674062e9dad4cec
+    last_write_checksum: sha1:46bb5547d477e3a6b46ca57e58ea18a4ee70f992
+    pristine_git_object: b1356464f2cafbc31b0f6f5e3e92a4fb67150305
   models/operations/options.go:
     id: d20dd4db9865
     last_write_checksum: sha1:0a46eb6aa074985b37151c2958ea503891f1ba13
@@ -664,24 +652,24 @@ trackedFiles:
     pristine_git_object: e6e5a01c6e721e879e24a38a1f97e3e27d4686d4
   paraph.go:
     id: b6668ffa01f3
-    last_write_checksum: sha1:17abf88c705509ea92f29878798eda5fc43bf5c9
-    pristine_git_object: e086b182bc1eaa1058ce1cd7be169d6d2b95585c
+    last_write_checksum: sha1:c9a06dde970c9aa5e8ac0d214710827de02f4667
+    pristine_git_object: 3b0632620b9df5932257b05f5bd8dfec9760dd70
   requests.go:
     id: 374236020f5a
-    last_write_checksum: sha1:b3814205d6bea274a3e25da0470efda176e149b5
-    pristine_git_object: 4dc14328b36bd5d56ac9bead9cce512fd811fc9f
+    last_write_checksum: sha1:bba10ec6ff3e12259c938002e1744ba38f12bd66
+    pristine_git_object: 0ba0b1cf42e999de653f06aaf75e31c3705891a6
   retry/config.go:
     id: 82d673cb0389
     last_write_checksum: sha1:7f7d96b59a18e95bac847ae09c63bbd911ee8432
     pristine_git_object: 5b3dc7c122d8ab08905485342d7474f8f163888d
   signers.go:
     id: fa0a036decfb
-    last_write_checksum: sha1:64197ef6b9af5869ea62176f7346182d1e28f69f
-    pristine_git_object: 3dc413fc82e7b0fb7bf2da4c9ffe5c738caa2cd9
+    last_write_checksum: sha1:54b396fa72a70159b2468f7206a42c0cf9b45732
+    pristine_git_object: 739ee25f27fc1172fa9ff4e729e4f41fc5f1550d
   templates.go:
     id: 5d73f32f82e5
-    last_write_checksum: sha1:f71844c38939e61186005434948f50ce895621f1
-    pristine_git_object: 14b971e58dc8671e9e0a050009257a3582790885
+    last_write_checksum: sha1:65123de30b75b09842c2ad7be92db3053ba86adc
+    pristine_git_object: 59927c0a77546fcb5c4b2dc217580a8bef2bd70c
   types/bigint.go:
     id: 6f911e1a03c3
     last_write_checksum: sha1:49b004005d0461fb04b846eca062b070b0360b31
@@ -700,14 +688,18 @@ trackedFiles:
     pristine_git_object: 35c439d2661e08fcb6a854096fd7b9a8561b3938
   webhooks.go:
     id: 72c7156317c9
-    last_write_checksum: sha1:32cc8af6d47e426466a37241278b915589c95a2f
-    pristine_git_object: 67132ca9a69e815fc9d76cc96f687a9c06d95a8a
+    last_write_checksum: sha1:b249dde20da624d39c427ba176860bbc8bfaf9b6
+    pristine_git_object: 78ceb509230ec05ef95e453f32cffc6e6cfce173
 examples:
   getAccount:
     speakeasy-default-get-account:
       responses:
         "200":
           application/json: {"account": {"team_name": "Acme Corp", "plan": "pro", "sandbox_mode": false, "api_key_name": "production-key", "limits": {"requests_per_month": 1000, "signing_requests_per_month": -1, "max_templates": -1, "max_members": 10}, "usage": {"requests": 342, "signing_requests": 15, "templates": 3, "members": 2}}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   listTemplates:
     speakeasy-default-list-templates:
       parameters:
@@ -717,44 +709,60 @@ examples:
       responses:
         "200":
           application/json: {"templates": [{"id": "d290f1ee-6c54-4b01-90e6-d701748f0851", "name": "Employment Agreement", "metadata": {"category": "hr"}, "created_at": "2026-03-15T10:30:00Z", "updated_at": "2026-03-15T10:30:00Z"}], "list_info": {"page": 1, "num_pages": 3, "num_results": 48, "page_size": 20}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   createTemplate:
     speakeasy-default-create-template:
       requestBody:
-        multipart/form-data: {"name": "<value>", "file_url": "https://dependent-graffiti.name/"}
+        multipart/form-data: {"name": "<value>"}
       responses:
         "201":
           application/json: {"template": {"id": "d290f1ee-6c54-4b01-90e6-d701748f0851", "name": "Employment Agreement", "metadata": {"category": "hr"}, "created_at": "2026-03-15T10:30:00Z", "updated_at": "2026-03-15T10:30:00Z", "fields": [{"id": "f47ac10b-58cc-4372-a567-0e02b2c3d479", "name": "employee_name", "type": "text", "options": []}, {"id": "7c9e6679-7425-40de-944b-e07fc1f90ae7", "name": "start_date", "type": "date", "options": []}, {"id": "550e8400-e29b-41d4-a716-446655440000", "name": "department", "type": "combobox", "options": ["Engineering", "Sales", "Marketing"]}], "signature_placements": [{"id": "c1d2e3f4-5678-9abc-def0-1234567890ab", "signer_label": "Employee", "page_number": 1, "x": 100, "y": 650, "width": 200, "height": 50}]}}
         "400":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
     unsupported_pdf:
       requestBody:
-        multipart/form-data: {"name": "<value>", "file_url": "https://dependent-graffiti.name/"}
+        multipart/form-data: {"name": "<value>"}
       responses:
         "400":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "This PDF could not be parsed. It may use unsupported form field features."}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "This PDF could not be parsed. It may use unsupported form field features."}}
     not_a_pdf:
       requestBody:
-        multipart/form-data: {"name": "<value>", "file_url": "https://dependent-graffiti.name/"}
+        multipart/form-data: {"name": "<value>"}
       responses:
         "400":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "File is not a valid PDF."}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "File is not a valid PDF."}}
     name_too_long:
       requestBody:
-        multipart/form-data: {"name": "<value>", "file_url": "https://dependent-graffiti.name/"}
+        multipart/form-data: {"name": "<value>"}
       responses:
         "400":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "name exceeds 255 characters"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "name exceeds 255 characters"}}
     invalid_file_url:
       requestBody:
-        multipart/form-data: {"name": "<value>", "file_url": "https://dependent-graffiti.name/"}
+        multipart/form-data: {"name": "<value>"}
       responses:
         "400":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid or unreachable URL"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid or unreachable URL"}}
     file_url_download_failed:
       requestBody:
-        multipart/form-data: {"name": "<value>", "file": "x-file: example.file"}
+        multipart/form-data: {"name": "<value>"}
       responses:
         "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "failed to download PDF from URL"}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "failed to download PDF from URL"}}
   getTemplate:
     speakeasy-default-get-template:
@@ -765,6 +773,10 @@ examples:
         "200":
           application/json: {"template": {"id": "d290f1ee-6c54-4b01-90e6-d701748f0851", "name": "Employment Agreement", "metadata": {"category": "hr"}, "created_at": "2026-03-15T10:30:00Z", "updated_at": "2026-03-15T10:30:00Z", "fields": [{"id": "f47ac10b-58cc-4372-a567-0e02b2c3d479", "name": "employee_name", "type": "text", "options": []}, {"id": "7c9e6679-7425-40de-944b-e07fc1f90ae7", "name": "start_date", "type": "date", "options": []}, {"id": "550e8400-e29b-41d4-a716-446655440000", "name": "department", "type": "combobox", "options": ["Engineering", "Sales", "Marketing"]}], "signature_placements": [{"id": "c1d2e3f4-5678-9abc-def0-1234567890ab", "signer_label": "Employee", "page_number": 1, "x": 100, "y": 650, "width": 200, "height": 50}]}}
         "404":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   updateTemplate:
     speakeasy-default-update-template:
@@ -778,6 +790,8 @@ examples:
           application/json: {"template": {"id": "d290f1ee-6c54-4b01-90e6-d701748f0851", "name": "Employment Agreement", "metadata": {"category": "hr"}, "created_at": "2026-03-15T10:30:00Z", "updated_at": "2026-03-15T10:30:00Z", "fields": [{"id": "f47ac10b-58cc-4372-a567-0e02b2c3d479", "name": "employee_name", "type": "text", "options": []}, {"id": "7c9e6679-7425-40de-944b-e07fc1f90ae7", "name": "start_date", "type": "date", "options": []}, {"id": "550e8400-e29b-41d4-a716-446655440000", "name": "department", "type": "combobox", "options": ["Engineering", "Sales", "Marketing"]}], "signature_placements": [{"id": "c1d2e3f4-5678-9abc-def0-1234567890ab", "signer_label": "Employee", "page_number": 1, "x": 100, "y": 650, "width": 200, "height": 50}]}}
         "400":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
     name_too_long:
       parameters:
         path:
@@ -786,6 +800,8 @@ examples:
         application/json: {}
       responses:
         "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "name exceeds 255 characters"}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "name exceeds 255 characters"}}
     signer_label_required:
       parameters:
@@ -796,6 +812,8 @@ examples:
       responses:
         "400":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "signer_label is required"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "signer_label is required"}}
     signer_label_too_long:
       parameters:
         path:
@@ -804,6 +822,8 @@ examples:
         application/json: {}
       responses:
         "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "signer_label exceeds 128 characters"}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "signer_label exceeds 128 characters"}}
     signer_label_invalid_chars:
       parameters:
@@ -814,6 +834,8 @@ examples:
       responses:
         "400":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "signer_label contains invalid characters"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "signer_label contains invalid characters"}}
   deleteTemplate:
     speakeasy-default-delete-template:
       parameters:
@@ -821,6 +843,10 @@ examples:
           id: "30543acd-947e-422a-9967-d4631e815e08"
       responses:
         "404":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   downloadTemplate:
     speakeasy-default-download-template:
@@ -831,6 +857,10 @@ examples:
         "200":
           application/pdf: "x-file: example.file"
         "404":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   createRequest:
     fill_only:
@@ -847,6 +877,8 @@ examples:
           application/json: {"request": {"id": "a1b2c3d4-5678-9abc-def0-1234567890ab", "template_id": "d290f1ee-6c54-4b01-90e6-d701748f0851", "title": "Employment Agreement - Jane Doe", "status": "success", "has_signing": true, "created_at": "2026-03-22T10:30:00Z", "updated_at": "2026-03-22T10:30:00Z", "inputs": {"employee_name": "Jane Doe", "start_date": "2026-04-01"}, "signers": [{"id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d", "signer_label": "Employee", "recipient_email": "jane.doe@example.com", "status": "signed", "expires_at": "2026-04-05T10:30:00Z", "signed_at": "2026-03-23T14:22:00Z"}]}}
         "400":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
     multi_signer:
       requestBody:
         application/json: {"template_id": "d290f1ee-6c54-4b01-90e6-d701748f0851", "fields": {"employee_name": "Jane Doe", "start_date": "2026-04-01"}, "signers": {"Employee": {"email": "jane.doe@example.com"}, "Manager": {"email": "bob.smith@example.com"}}, "allow_typed_signature": true}
@@ -855,6 +887,8 @@ examples:
           application/json: {"request": {"id": "a1b2c3d4-5678-9abc-def0-1234567890ab", "template_id": "d290f1ee-6c54-4b01-90e6-d701748f0851", "title": "Employment Agreement - Jane Doe", "status": "success", "has_signing": true, "created_at": "2026-03-22T10:30:00Z", "updated_at": "2026-03-22T10:30:00Z", "inputs": {"employee_name": "Jane Doe", "start_date": "2026-04-01"}, "signers": [{"id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d", "signer_label": "Employee", "recipient_email": "jane.doe@example.com", "status": "signed", "expires_at": "2026-04-05T10:30:00Z", "signed_at": "2026-03-23T14:22:00Z"}]}}
         "400":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
     pre_signed:
       requestBody:
         application/json: {"template_id": "d290f1ee-6c54-4b01-90e6-d701748f0851", "fields": {"employee_name": "Jane Doe", "start_date": "2026-04-01"}, "signers": {"Employee": {"email": "jane.doe@example.com", "override_signature_url": "https://example.com/signatures/jane.png"}}, "allow_typed_signature": true}
@@ -862,6 +896,8 @@ examples:
         "201":
           application/json: {"request": {"id": "a1b2c3d4-5678-9abc-def0-1234567890ab", "template_id": "d290f1ee-6c54-4b01-90e6-d701748f0851", "title": "Employment Agreement - Jane Doe", "status": "success", "has_signing": true, "created_at": "2026-03-22T10:30:00Z", "updated_at": "2026-03-22T10:30:00Z", "inputs": {"employee_name": "Jane Doe", "start_date": "2026-04-01"}, "signers": [{"id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d", "signer_label": "Employee", "recipient_email": "jane.doe@example.com", "status": "signed", "expires_at": "2026-04-05T10:30:00Z", "signed_at": "2026-03-23T14:22:00Z"}]}}
         "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
     with_signing:
       requestBody:
@@ -875,11 +911,15 @@ examples:
       responses:
         "400":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "template_id is required"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "template_id is required"}}
     unfillable:
       requestBody:
         application/json: {"template_id": "1f5adbea-4edb-4e7a-97f7-26c31fd11d09", "allow_typed_signature": true}
       responses:
         "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "This PDF's form fields could not be filled. The template may use an unsupported form structure."}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "This PDF's form fields could not be filled. The template may use an unsupported form structure."}}
     title_too_long:
       requestBody:
@@ -887,11 +927,15 @@ examples:
       responses:
         "400":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "title exceeds 255 characters"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "title exceeds 255 characters"}}
     message_too_long:
       requestBody:
         application/json: {"template_id": "1f5adbea-4edb-4e7a-97f7-26c31fd11d09", "allow_typed_signature": true}
       responses:
         "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "message exceeds 1024 characters"}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "message exceeds 1024 characters"}}
     invalid_email:
       requestBody:
@@ -899,11 +943,15 @@ examples:
       responses:
         "400":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email for signer \"Employee\""}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email for signer \"Employee\""}}
     invalid_override_url:
       requestBody:
         application/json: {"template_id": "1f5adbea-4edb-4e7a-97f7-26c31fd11d09", "allow_typed_signature": true}
       responses:
         "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid override_signature_url for signer \"Employee\""}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid override_signature_url for signer \"Employee\""}}
   listRequests:
     speakeasy-default-list-requests:
@@ -914,6 +962,10 @@ examples:
       responses:
         "200":
           application/json: {"requests": [{"id": "a1b2c3d4-5678-9abc-def0-1234567890ab", "template_id": "d290f1ee-6c54-4b01-90e6-d701748f0851", "title": "Employment Agreement - Jane Doe", "status": "success", "has_signing": true, "created_at": "2026-03-22T10:30:00Z", "updated_at": "2026-03-22T10:30:00Z"}], "list_info": {"page": 1, "num_pages": 3, "num_results": 48, "page_size": 20}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   getRequest:
     speakeasy-default-get-request:
       parameters:
@@ -923,6 +975,10 @@ examples:
         "200":
           application/json: {"request": {"id": "a1b2c3d4-5678-9abc-def0-1234567890ab", "template_id": "d290f1ee-6c54-4b01-90e6-d701748f0851", "title": "Employment Agreement - Jane Doe", "status": "success", "has_signing": true, "created_at": "2026-03-22T10:30:00Z", "updated_at": "2026-03-22T10:30:00Z", "inputs": {"employee_name": "Jane Doe", "start_date": "2026-04-01"}, "signers": [{"id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d", "signer_label": "Employee", "recipient_email": "jane.doe@example.com", "status": "signed", "expires_at": "2026-04-05T10:30:00Z", "signed_at": "2026-03-23T14:22:00Z"}]}}
         "404":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   downloadRequest:
     speakeasy-default-download-request:
@@ -934,6 +990,10 @@ examples:
           application/pdf: "x-file: example.file"
         "404":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   cancelRequest:
     speakeasy-default-cancel-request:
       parameters:
@@ -943,6 +1003,10 @@ examples:
         "200":
           application/json: {"request": {"id": "a1b2c3d4-5678-9abc-def0-1234567890ab", "template_id": "d290f1ee-6c54-4b01-90e6-d701748f0851", "title": "Employment Agreement - Jane Doe", "status": "success", "has_signing": true, "created_at": "2026-03-22T10:30:00Z", "updated_at": "2026-03-22T10:30:00Z", "inputs": {"employee_name": "Jane Doe", "start_date": "2026-04-01"}, "signers": [{"id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d", "signer_label": "Employee", "recipient_email": "jane.doe@example.com", "status": "signed", "expires_at": "2026-04-05T10:30:00Z", "signed_at": "2026-03-23T14:22:00Z"}]}}
         "404":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   resendSigningLink:
     speakeasy-default-resend-signing-link:
@@ -955,6 +1019,10 @@ examples:
           application/json: {"signer": {"id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d", "signer_label": "Employee", "recipient_email": "jane.doe@example.com", "status": "pending", "expires_at": "2026-04-05T10:30:00Z", "signed_at": "2026-12-04T00:51:02.669Z"}}
         "409":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   downloadSignerSignature:
     speakeasy-default-download-signer-signature:
       parameters:
@@ -966,6 +1034,10 @@ examples:
           image/png: "x-file: example.file"
         "404":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   createWebhook:
     speakeasy-default-create-webhook:
       requestBody:
@@ -974,6 +1046,8 @@ examples:
         "201":
           application/json: {"webhook": {"id": "b1c2d3e4-5678-9abc-def0-1234567890ab", "url": "https://example.com/webhook", "events": ["request.success", "signer.signed"], "active": true, "created_at": "2026-03-23T10:00:00Z", "updated_at": "2026-03-23T10:00:00Z"}}
         "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   listWebhooks:
     speakeasy-default-list-webhooks:
@@ -984,6 +1058,10 @@ examples:
       responses:
         "200":
           application/json: {"webhooks": [{"id": "b1c2d3e4-5678-9abc-def0-1234567890ab", "url": "https://example.com/webhook", "events": ["request.success", "signer.signed"], "active": true, "created_at": "2026-03-23T10:00:00Z", "updated_at": "2026-03-23T10:00:00Z"}], "list_info": {"page": 1, "num_pages": 3, "num_results": 48, "page_size": 20}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   getWebhook:
     speakeasy-default-get-webhook:
       parameters:
@@ -993,6 +1071,10 @@ examples:
         "200":
           application/json: {"webhook": {"id": "b1c2d3e4-5678-9abc-def0-1234567890ab", "url": "https://example.com/webhook", "events": ["request.success", "signer.signed"], "active": true, "created_at": "2026-03-23T10:00:00Z", "updated_at": "2026-03-23T10:00:00Z"}}
         "404":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   updateWebhook:
     speakeasy-default-update-webhook:
@@ -1006,6 +1088,10 @@ examples:
           application/json: {"webhook": {"id": "b1c2d3e4-5678-9abc-def0-1234567890ab", "url": "https://example.com/webhook", "events": ["request.success", "signer.signed"], "active": true, "created_at": "2026-03-23T10:00:00Z", "updated_at": "2026-03-23T10:00:00Z"}}
         "404":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   deleteWebhook:
     speakeasy-default-delete-webhook:
       parameters:
@@ -1013,6 +1099,10 @@ examples:
           id: "2f4cf1de-535d-40b8-9860-de80b52e1022"
       responses:
         "404":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
   testWebhook:
     speakeasy-default-test-webhook:
@@ -1023,5 +1113,9 @@ examples:
         "404":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
         "502":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "400":
+          application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
+        "500":
           application/json: {"error": {"error_name": "bad_request", "error_msg": "invalid email address"}}
 examplesVersion: 1.0.2

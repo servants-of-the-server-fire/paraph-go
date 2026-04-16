@@ -1,5 +1,13 @@
 # SignerStatus
 
+Per-signer status.
+- `pending` — signing link sent, awaiting signer
+- `signed` — signer completed
+- `expired` — signer did not sign before `expires_at`
+- `error` — terminal failure for this signer
+- `cancelled` — parent request was cancelled
+
+
 ## Example Usage
 
 ```go

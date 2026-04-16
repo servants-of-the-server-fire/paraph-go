@@ -72,7 +72,8 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 400, 429           | application/json   |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500                | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |
 
 ## List
@@ -104,7 +105,19 @@ func main() {
         log.Fatal(err)
     }
     if res.WebhookListResponse != nil {
-        // handle response
+        for {
+            // handle items
+
+            res, err = res.Next()
+
+            if err != nil {
+                // handle error
+            }
+
+            if res == nil {
+                break
+            }
+        }
     }
 }
 ```
@@ -126,6 +139,8 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500                | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |
 
 ## Get
@@ -178,7 +193,8 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 404                | application/json   |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500                | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |
 
 ## Update
@@ -233,7 +249,8 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 404                | application/json   |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500                | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |
 
 ## Delete
@@ -286,7 +303,8 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 404                | application/json   |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500                | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |
 
 ## Test
@@ -341,6 +359,6 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 404                | application/json   |
-| apierrors.Error    | 502                | application/json   |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500, 502           | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |

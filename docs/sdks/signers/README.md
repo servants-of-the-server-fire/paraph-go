@@ -62,10 +62,11 @@ func main() {
 
 ### Errors
 
-| Error Type         | Status Code        | Content Type       |
-| ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 409                | application/json   |
-| apierrors.APIError | 4XX, 5XX           | \*/\*              |
+| Error Type              | Status Code             | Content Type            |
+| ----------------------- | ----------------------- | ----------------------- |
+| apierrors.Error         | 400, 401, 404, 409, 429 | application/json        |
+| apierrors.Error         | 500                     | application/json        |
+| apierrors.APIError      | 4XX, 5XX                | \*/\*                   |
 
 ## DownloadSignature
 
@@ -120,5 +121,6 @@ func main() {
 
 | Error Type         | Status Code        | Content Type       |
 | ------------------ | ------------------ | ------------------ |
-| apierrors.Error    | 404                | application/json   |
+| apierrors.Error    | 400, 401, 404, 429 | application/json   |
+| apierrors.Error    | 500                | application/json   |
 | apierrors.APIError | 4XX, 5XX           | \*/\*              |

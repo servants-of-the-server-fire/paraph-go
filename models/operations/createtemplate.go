@@ -3,234 +3,70 @@
 package operations
 
 import (
-	"errors"
-	"fmt"
 	"github.com/servants-of-the-server-fire/paraph-go/internal/utils"
 	"github.com/servants-of-the-server-fire/paraph-go/models/components"
 )
 
-type File2 struct {
+type File struct {
 	FileName string `multipartForm:"name=fileName"`
 	// This field accepts []byte data or io.Reader implementations, such as *os.File.
 	Content any `multipartForm:"content"`
 }
 
-func (f *File2) GetFileName() string {
+func (f *File) GetFileName() string {
 	if f == nil {
 		return ""
 	}
 	return f.FileName
 }
 
-func (f *File2) GetContent() any {
+func (f *File) GetContent() any {
 	if f == nil {
 		return nil
 	}
 	return f.Content
 }
 
-// #region class-body-file2
-// #endregion class-body-file2
-
-type RequestBody2 struct {
+// CreateTemplateRequest - Upload a PDF template with named form fields. Provide exactly one of `file` or `file_url`.
+type CreateTemplateRequest struct {
 	// Display name for the template
 	Name string `multipartForm:"name=name"`
-	// PDF file with AcroForm fields
-	File *File2 `multipartForm:"file,name=file"`
-	// URL to fetch the PDF from
-	FileURL string `multipartForm:"name=file_url"`
-}
-
-func (r RequestBody2) MarshalJSON() ([]byte, error) {
-	return utils.MarshalJSON(r, "", false)
-}
-
-func (r *RequestBody2) UnmarshalJSON(data []byte) error {
-	if err := utils.UnmarshalJSON(data, &r, "", false, nil); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (r *RequestBody2) GetName() string {
-	if r == nil {
-		return ""
-	}
-	return r.Name
-}
-
-func (r *RequestBody2) GetFile() *File2 {
-	if r == nil {
-		return nil
-	}
-	return r.File
-}
-
-func (r *RequestBody2) GetFileURL() string {
-	if r == nil {
-		return ""
-	}
-	return r.FileURL
-}
-
-// #region class-body-requestbody2
-// #endregion class-body-requestbody2
-
-type File1 struct {
-	FileName string `multipartForm:"name=fileName"`
-	// This field accepts []byte data or io.Reader implementations, such as *os.File.
-	Content any `multipartForm:"content"`
-}
-
-func (f *File1) GetFileName() string {
-	if f == nil {
-		return ""
-	}
-	return f.FileName
-}
-
-func (f *File1) GetContent() any {
-	if f == nil {
-		return nil
-	}
-	return f.Content
-}
-
-// #region class-body-file1
-// #endregion class-body-file1
-
-type RequestBody1 struct {
-	// Display name for the template
-	Name string `multipartForm:"name=name"`
-	// PDF file with AcroForm fields
-	File File1 `multipartForm:"file,name=file"`
-	// URL to fetch the PDF from
+	// PDF file with AcroForm fields (mutually exclusive with `file_url`)
+	File *File `multipartForm:"file,name=file"`
+	// URL to fetch the PDF from (mutually exclusive with `file`)
 	FileURL *string `multipartForm:"name=file_url"`
 }
 
-func (r RequestBody1) MarshalJSON() ([]byte, error) {
-	return utils.MarshalJSON(r, "", false)
+func (c CreateTemplateRequest) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(c, "", false)
 }
 
-func (r *RequestBody1) UnmarshalJSON(data []byte) error {
-	if err := utils.UnmarshalJSON(data, &r, "", false, nil); err != nil {
+func (c *CreateTemplateRequest) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &c, "", false, nil); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *RequestBody1) GetName() string {
-	if r == nil {
+func (c *CreateTemplateRequest) GetName() string {
+	if c == nil {
 		return ""
 	}
-	return r.Name
+	return c.Name
 }
 
-func (r *RequestBody1) GetFile() File1 {
-	if r == nil {
-		return File1{}
-	}
-	return r.File
-}
-
-func (r *RequestBody1) GetFileURL() *string {
-	if r == nil {
+func (c *CreateTemplateRequest) GetFile() *File {
+	if c == nil {
 		return nil
 	}
-	return r.FileURL
+	return c.File
 }
 
-// #region class-body-requestbody1
-// #endregion class-body-requestbody1
-
-type CreateTemplateRequestType string
-
-const (
-	CreateTemplateRequestTypeRequestBody1 CreateTemplateRequestType = "RequestBody_1"
-	CreateTemplateRequestTypeRequestBody2 CreateTemplateRequestType = "RequestBody_2"
-)
-
-// CreateTemplateRequest - Upload a PDF template with named form fields.
-type CreateTemplateRequest struct {
-	RequestBody1 *RequestBody1 `queryParam:"inline" union:"member"`
-	RequestBody2 *RequestBody2 `queryParam:"inline" union:"member"`
-
-	Type CreateTemplateRequestType
-}
-
-func CreateCreateTemplateRequestRequestBody1(requestBody1 RequestBody1) CreateTemplateRequest {
-	typ := CreateTemplateRequestTypeRequestBody1
-
-	return CreateTemplateRequest{
-		RequestBody1: &requestBody1,
-		Type:         typ,
-	}
-}
-
-func CreateCreateTemplateRequestRequestBody2(requestBody2 RequestBody2) CreateTemplateRequest {
-	typ := CreateTemplateRequestTypeRequestBody2
-
-	return CreateTemplateRequest{
-		RequestBody2: &requestBody2,
-		Type:         typ,
-	}
-}
-
-func (u *CreateTemplateRequest) UnmarshalJSON(data []byte) error {
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var requestBody1 RequestBody1 = RequestBody1{}
-	if err := utils.UnmarshalJSON(data, &requestBody1, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreateTemplateRequestTypeRequestBody1,
-			Value: &requestBody1,
-		})
-	}
-
-	var requestBody2 RequestBody2 = RequestBody2{}
-	if err := utils.UnmarshalJSON(data, &requestBody2, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreateTemplateRequestTypeRequestBody2,
-			Value: &requestBody2,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreateTemplateRequest", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreateTemplateRequest", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(CreateTemplateRequestType)
-	switch best.Type {
-	case CreateTemplateRequestTypeRequestBody1:
-		u.RequestBody1 = best.Value.(*RequestBody1)
-		return nil
-	case CreateTemplateRequestTypeRequestBody2:
-		u.RequestBody2 = best.Value.(*RequestBody2)
+func (c *CreateTemplateRequest) GetFileURL() *string {
+	if c == nil {
 		return nil
 	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreateTemplateRequest", string(data))
-}
-
-func (u CreateTemplateRequest) MarshalJSON() ([]byte, error) {
-	if u.RequestBody1 != nil {
-		return utils.MarshalJSON(u.RequestBody1, "", true)
-	}
-
-	if u.RequestBody2 != nil {
-		return utils.MarshalJSON(u.RequestBody2, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type CreateTemplateRequest: all fields are null")
+	return c.FileURL
 }
 
 type CreateTemplateResponse struct {

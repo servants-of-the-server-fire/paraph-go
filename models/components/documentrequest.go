@@ -7,31 +7,6 @@ import (
 	"time"
 )
 
-// DocumentRequestStatus - Request status
-type DocumentRequestStatus string
-
-const (
-	DocumentRequestStatusSuccess   DocumentRequestStatus = "success"
-	DocumentRequestStatusError     DocumentRequestStatus = "error"
-	DocumentRequestStatusPending   DocumentRequestStatus = "pending"
-	DocumentRequestStatusCancelled DocumentRequestStatus = "cancelled"
-)
-
-func (e DocumentRequestStatus) ToPointer() *DocumentRequestStatus {
-	return &e
-}
-
-// IsExact returns true if the value matches a known enum value, false otherwise.
-func (e *DocumentRequestStatus) IsExact() bool {
-	if e != nil {
-		switch *e {
-		case "success", "error", "pending", "cancelled":
-			return true
-		}
-	}
-	return false
-}
-
 // DocumentRequest - Full request representation returned by detail and create endpoints. Includes inputs, metadata, and signers.
 type DocumentRequest struct {
 	ID         string `json:"id"`
@@ -40,8 +15,13 @@ type DocumentRequest struct {
 	Title *string `json:"title,omitzero"`
 	// Custom message included in signing emails
 	Message *string `json:"message,omitzero"`
-	// Request status
-	Status DocumentRequestStatus `json:"status"`
+	// Lifecycle status of a document request.
+	// - `success` — fill completed (and all signers signed, if any)
+	// - `error` — terminal failure
+	// - `pending` — awaiting signer action
+	// - `cancelled` — caller cancelled before completion
+	//
+	Status RequestStatus `json:"status"`
 	// Whether this request includes signers
 	HasSigning bool      `json:"has_signing"`
 	CreatedAt  time.Time `json:"created_at"`
@@ -93,9 +73,9 @@ func (d *DocumentRequest) GetMessage() *string {
 	return d.Message
 }
 
-func (d *DocumentRequest) GetStatus() DocumentRequestStatus {
+func (d *DocumentRequest) GetStatus() RequestStatus {
 	if d == nil {
-		return DocumentRequestStatus("")
+		return RequestStatus("")
 	}
 	return d.Status
 }

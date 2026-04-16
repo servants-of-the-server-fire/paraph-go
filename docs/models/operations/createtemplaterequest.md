@@ -1,31 +1,12 @@
 # CreateTemplateRequest
 
-Upload a PDF template with named form fields.
+Upload a PDF template with named form fields. Provide exactly one of `file` or `file_url`.
 
 
-## Supported Types
+## Fields
 
-### RequestBody1
-
-```go
-createTemplateRequest := operations.CreateCreateTemplateRequestRequestBody1(operations.RequestBody1{/* values here */})
-```
-
-### RequestBody2
-
-```go
-createTemplateRequest := operations.CreateCreateTemplateRequestRequestBody2(operations.RequestBody2{/* values here */})
-```
-
-## Union Discrimination
-
-Use the `Type` field to determine which variant is active, then access the corresponding field:
-
-```go
-switch createTemplateRequest.Type {
-	case operations.CreateTemplateRequestTypeRequestBody1:
-		// createTemplateRequest.RequestBody1 is populated
-	case operations.CreateTemplateRequestTypeRequestBody2:
-		// createTemplateRequest.RequestBody2 is populated
-}
-```
+| Field                                                              | Type                                                               | Required                                                           | Description                                                        |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| `Name`                                                             | `string`                                                           | :heavy_check_mark:                                                 | Display name for the template                                      |
+| `File`                                                             | [*operations.File](../../models/operations/file.md)                | :heavy_minus_sign:                                                 | PDF file with AcroForm fields (mutually exclusive with `file_url`) |
+| `FileURL`                                                          | `*string`                                                          | :heavy_minus_sign:                                                 | URL to fetch the PDF from (mutually exclusive with `file`)         |
