@@ -6,8 +6,9 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **TeamName** | **string** |  | 
 **Plan** | **string** |  | 
-**SandboxMode** | **bool** |  | 
+**SandboxMode** | **bool** | Team-wide sandbox toggle. When true, every request from this team (web or API) is treated as sandbox regardless of which key is used — plan quotas are bypassed and PDFs get a SAMPLE watermark.  | 
 **ApiKeyName** | **string** | Name of the API key used for this request | 
+**ApiKeySandbox** | **bool** | Whether the API key used for this request is a sandbox key. Sandbox keys are always in sandbox regardless of &#x60;sandbox_mode&#x60;. A request is effectively sandbox when either flag is true. Mode is set at key creation time and cannot be changed.  | 
 **Limits** | [**AccountLimits**](AccountLimits.md) |  | 
 **Usage** | [**AccountUsage**](AccountUsage.md) |  | 
 
@@ -15,7 +16,7 @@ Name | Type | Description | Notes
 
 ### NewAccount
 
-`func NewAccount(teamName string, plan string, sandboxMode bool, apiKeyName string, limits AccountLimits, usage AccountUsage, ) *Account`
+`func NewAccount(teamName string, plan string, sandboxMode bool, apiKeyName string, apiKeySandbox bool, limits AccountLimits, usage AccountUsage, ) *Account`
 
 NewAccount instantiates a new Account object
 This constructor will assign default values to properties that have it defined,
@@ -108,6 +109,26 @@ and a boolean to check if the value has been set.
 `func (o *Account) SetApiKeyName(v string)`
 
 SetApiKeyName sets ApiKeyName field to given value.
+
+
+### GetApiKeySandbox
+
+`func (o *Account) GetApiKeySandbox() bool`
+
+GetApiKeySandbox returns the ApiKeySandbox field if non-nil, zero value otherwise.
+
+### GetApiKeySandboxOk
+
+`func (o *Account) GetApiKeySandboxOk() (*bool, bool)`
+
+GetApiKeySandboxOk returns a tuple with the ApiKeySandbox field if it's non-nil, zero value otherwise
+and a boolean to check if the value has been set.
+
+### SetApiKeySandbox
+
+`func (o *Account) SetApiKeySandbox(v bool)`
+
+SetApiKeySandbox sets ApiKeySandbox field to given value.
 
 
 ### GetLimits

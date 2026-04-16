@@ -1,7 +1,7 @@
 /*
 Paraph API
 
-Document API for developers. Upload PDF templates, fill them via API, and send for signing when you need to. Both workflows use the same endpoint.  ## Quick Start  Upload a PDF template, then create requests against it.  All requests require `Authorization: Bearer <your-api-key>`.  ### Fill a PDF  1. [Upload a template](#tag/templates/POST/templates) with a PDF that has named form fields. The response includes the template `id` and the detected fields. 2. [Create a request](#tag/requests/POST/requests) with the `template_id` and a `fields` map. Status is `success` immediately. 3. [Download the filled PDF](#tag/requests/GET/requests/{id}/download).  ---  ### Fill + send for signing  Same as above, but add signers. You'll need to set up signature placements on the template first (one-time).  1. [Upload a template](#tag/templates/POST/templates). 2. [Update the template](#tag/templates/PUT/templates/{id}) with `signature_placements` (page, coordinates, and which signer label goes where). 3. [Create a request](#tag/requests/POST/requests) with a `fields` map and a `signers` map keyed by label. Each signer gets an email with a signing link. Status is `pending` until everyone signs. 4. [Download the signed PDF](#tag/requests/GET/requests/{id}/download) once all signers have completed.  Use [webhooks](#tag/webhooks) to get notified instead of polling.  ---  ### Pre-signed documents  If you already have a signer's signature image (captured in your own app, for example), pass `override_signature_url` in the `SignerInput` when [creating a request](#tag/requests/POST/requests). That signer is marked as signed immediately and no email is sent. You can mix this with regular email-based signing on the same request.  ---  ### Webhooks  1. [Create a webhook](#tag/webhooks/POST/webhooks) with a URL and the events you care about. 2. Each delivery is a POST with `Content-Type: application/json`. See the `WebhookDelivery` schema for the payload format. 3. Verify deliveries using the `secret` returned at creation time. Each delivery includes an `X-Signature-256` header with an HMAC-SHA256 signature.  ---  ### Metadata  Pass a `metadata` object (up to 10 key-value pairs) when [creating a request](#tag/requests/POST/requests) to tag it with your own identifiers. Metadata is returned on all [request endpoints](#tag/requests) and in webhook deliveries.  ---  ### Salesforce integration  Paraph offers a managed package on the Salesforce AppExchange. The SF package talks to this same API — no special endpoints, no separate auth.  **Setup (one-time per SF org):**  1. In Paraph: create an API key (Admin → API Keys). Name it something    like \"Salesforce production\". 2. In Salesforce: open the paraph managed package's setup wizard and    paste the API key. The package stores it in a Named Credential. 3. Done. Every Apex callout auto-injects `Authorization: Bearer <key>`    via the Named Credential's custom header.  **What Apex code looks like:**  ```apex HttpRequest req = new HttpRequest(); req.setEndpoint('callout:Paraph_Named_Credential/api/v1/requests'); req.setMethod('POST'); req.setHeader('Content-Type', 'application/json'); req.setBody(payload); HttpResponse res = new Http().send(req); ```  **Rotation:** create a second API key, paste the new one into SF, delete the old one from Paraph. Both are valid simultaneously so there is no downtime window.  **Revocation:** delete the key in Paraph. The next SF callout fails with `401`; the admin pastes a fresh key.  ---  ### Common headers  All API responses include: - `X-Request-Id` — unique identifier for the request, useful for debugging and support. - `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` — rate limit status. 
+Document API for developers. Upload PDF templates, fill them via API, and send for signing when you need to. Both workflows use the same endpoint.  ## Quick Start  Upload a PDF template, then create requests against it.  All requests require `Authorization: Bearer <your-api-key>`.  ### Fill a PDF  1. [Upload a template](#tag/templates/POST/templates) with a PDF that has named form fields. The response includes the template `id` and the detected fields. 2. [Create a request](#tag/requests/POST/requests) with the `template_id` and a `fields` map. Status is `success` immediately. 3. [Download the filled PDF](#tag/requests/GET/requests/{id}/download).  ---  ### Fill + send for signing  Same as above, but add signers. You'll need to set up signature placements on the template first (one-time).  1. [Upload a template](#tag/templates/POST/templates). 2. [Update the template](#tag/templates/PUT/templates/{id}) with `signature_placements` (page, coordinates, and which signer label goes where). 3. [Create a request](#tag/requests/POST/requests) with a `fields` map and a `signers` map keyed by label. Each signer gets an email with a signing link. Status is `pending` until everyone signs. 4. [Download the signed PDF](#tag/requests/GET/requests/{id}/download) once all signers have completed.  Use [webhooks](#tag/webhooks) to get notified instead of polling.  ---  ### Pre-signed documents  If you already have a signer's signature image (captured in your own app, for example), pass `override_signature_url` in the `SignerInput` when [creating a request](#tag/requests/POST/requests). That signer is marked as signed immediately and no email is sent. You can mix this with regular email-based signing on the same request.  ---  ### Webhooks  1. [Create a webhook](#tag/webhooks/POST/webhooks) with a URL and the events you care about. 2. Each delivery is a POST with `Content-Type: application/json`. See the `WebhookDelivery` schema for the payload format. 3. Verify deliveries using the `secret` returned at creation time. Each delivery includes an `X-Signature-256` header with an HMAC-SHA256 signature.  ---  ### Metadata  Pass a `metadata` object (up to 10 key-value pairs) when [creating a request](#tag/requests/POST/requests) to tag it with your own identifiers. Metadata is returned on all [request endpoints](#tag/requests) and in webhook deliveries.  ---  ### Sandbox mode  Sandbox requests **bypass plan quotas** and produce PDFs with a diagonal **SAMPLE** watermark. A request is sandbox when either:  - The API key used is a sandbox key (`api_key_sandbox: true` on   [account](#tag/account/GET/account)), OR - The team has sandbox mode enabled team-wide (`sandbox_mode: true`)  New accounts are created with a default sandbox API key so first requests don't count toward the plan. Create additional sandbox or production keys from the admin dashboard. A key's mode is set at creation and cannot be changed later — create a new key instead.  ---  ### Salesforce integration  Paraph offers a managed package on the Salesforce AppExchange. The SF package talks to this same API — no special endpoints, no separate auth.  **Setup (one-time per SF org):**  1. In Paraph: create an API key (Admin → API Keys). Name it something    like \"Salesforce production\". 2. In Salesforce: open the paraph managed package's setup wizard and    paste the API key. The package stores it in a Named Credential. 3. Done. Every Apex callout auto-injects `Authorization: Bearer <key>`    via the Named Credential's custom header.  **What Apex code looks like:**  ```apex HttpRequest req = new HttpRequest(); req.setEndpoint('callout:Paraph_Named_Credential/api/v1/requests'); req.setMethod('POST'); req.setHeader('Content-Type', 'application/json'); req.setBody(payload); HttpResponse res = new Http().send(req); ```  **Rotation:** create a second API key, paste the new one into SF, delete the old one from Paraph. Both are valid simultaneously so there is no downtime window.  **Revocation:** delete the key in Paraph. The next SF callout fails with `401`; the admin pastes a fresh key.  ---  ### Common headers  All API responses include: - `X-Request-Id` — unique identifier for the request, useful for debugging and support. - `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` — rate limit status. 
 
 API version: 1.0.0
 Contact: support@paraph.dev
@@ -24,9 +24,12 @@ var _ MappedNullable = &Account{}
 type Account struct {
 	TeamName string `json:"team_name"`
 	Plan string `json:"plan"`
+	// Team-wide sandbox toggle. When true, every request from this team (web or API) is treated as sandbox regardless of which key is used — plan quotas are bypassed and PDFs get a SAMPLE watermark. 
 	SandboxMode bool `json:"sandbox_mode"`
 	// Name of the API key used for this request
 	ApiKeyName string `json:"api_key_name"`
+	// Whether the API key used for this request is a sandbox key. Sandbox keys are always in sandbox regardless of `sandbox_mode`. A request is effectively sandbox when either flag is true. Mode is set at key creation time and cannot be changed. 
+	ApiKeySandbox bool `json:"api_key_sandbox"`
 	Limits AccountLimits `json:"limits"`
 	Usage AccountUsage `json:"usage"`
 }
@@ -37,12 +40,13 @@ type _Account Account
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAccount(teamName string, plan string, sandboxMode bool, apiKeyName string, limits AccountLimits, usage AccountUsage) *Account {
+func NewAccount(teamName string, plan string, sandboxMode bool, apiKeyName string, apiKeySandbox bool, limits AccountLimits, usage AccountUsage) *Account {
 	this := Account{}
 	this.TeamName = teamName
 	this.Plan = plan
 	this.SandboxMode = sandboxMode
 	this.ApiKeyName = apiKeyName
+	this.ApiKeySandbox = apiKeySandbox
 	this.Limits = limits
 	this.Usage = usage
 	return &this
@@ -152,6 +156,30 @@ func (o *Account) SetApiKeyName(v string) {
 	o.ApiKeyName = v
 }
 
+// GetApiKeySandbox returns the ApiKeySandbox field value
+func (o *Account) GetApiKeySandbox() bool {
+	if o == nil {
+		var ret bool
+		return ret
+	}
+
+	return o.ApiKeySandbox
+}
+
+// GetApiKeySandboxOk returns a tuple with the ApiKeySandbox field value
+// and a boolean to check if the value has been set.
+func (o *Account) GetApiKeySandboxOk() (*bool, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.ApiKeySandbox, true
+}
+
+// SetApiKeySandbox sets field value
+func (o *Account) SetApiKeySandbox(v bool) {
+	o.ApiKeySandbox = v
+}
+
 // GetLimits returns the Limits field value
 func (o *Account) GetLimits() AccountLimits {
 	if o == nil {
@@ -214,6 +242,7 @@ func (o Account) ToMap() (map[string]interface{}, error) {
 	toSerialize["plan"] = o.Plan
 	toSerialize["sandbox_mode"] = o.SandboxMode
 	toSerialize["api_key_name"] = o.ApiKeyName
+	toSerialize["api_key_sandbox"] = o.ApiKeySandbox
 	toSerialize["limits"] = o.Limits
 	toSerialize["usage"] = o.Usage
 	return toSerialize, nil
@@ -228,6 +257,7 @@ func (o *Account) UnmarshalJSON(data []byte) (err error) {
 		"plan",
 		"sandbox_mode",
 		"api_key_name",
+		"api_key_sandbox",
 		"limits",
 		"usage",
 	}

@@ -24,3 +24,4 @@
 
 # User-authored smoke test — do not regenerate over
 examples/**
+README.md

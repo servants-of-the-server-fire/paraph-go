@@ -62,6 +62,22 @@ info:
 
     ---
 
+    ### Sandbox mode
+
+    Sandbox requests **bypass plan quotas** and produce PDFs with a
+    diagonal **SAMPLE** watermark. A request is sandbox when either:
+
+    - The API key used is a sandbox key (`api_key_sandbox: true` on
+      [account](#tag/account/GET/account)), OR
+    - The team has sandbox mode enabled team-wide (`sandbox_mode: true`)
+
+    New accounts are created with a default sandbox API key so first
+    requests don't count toward the plan. Create additional sandbox or
+    production keys from the admin dashboard. A key's mode is set at
+    creation and cannot be changed later — create a new key instead.
+
+    ---
+
     ### Salesforce integration
 
     Paraph offers a managed package on the Salesforce AppExchange. The SF
@@ -143,6 +159,7 @@ paths:
                   plan: pro
                   sandbox_mode: false
                   api_key_name: production-key
+                  api_key_sandbox: false
                   limits:
                     requests_per_month: 1000
                     signing_requests_per_month: -1
@@ -1345,6 +1362,7 @@ components:
         plan: pro
         sandbox_mode: false
         api_key_name: production-key
+        api_key_sandbox: false
         limits:
           requests_per_month: 1000
           signing_requests_per_month: -1
@@ -1365,16 +1383,28 @@ components:
           - enterprise
           type: string
         sandbox_mode:
+          description: |
+            Team-wide sandbox toggle. When true, every request from this team
+            (web or API) is treated as sandbox regardless of which key is
+            used — plan quotas are bypassed and PDFs get a SAMPLE watermark.
           type: boolean
         api_key_name:
           description: Name of the API key used for this request
           type: string
+        api_key_sandbox:
+          description: |
+            Whether the API key used for this request is a sandbox key.
+            Sandbox keys are always in sandbox regardless of `sandbox_mode`.
+            A request is effectively sandbox when either flag is true.
+            Mode is set at key creation time and cannot be changed.
+          type: boolean
         limits:
           $ref: "#/components/schemas/Account_limits"
         usage:
           $ref: "#/components/schemas/Account_usage"
       required:
       - api_key_name
+      - api_key_sandbox
       - limits
       - plan
       - sandbox_mode
@@ -2012,6 +2042,7 @@ components:
           plan: pro
           sandbox_mode: false
           api_key_name: production-key
+          api_key_sandbox: false
           limits:
             requests_per_month: 1000
             signing_requests_per_month: -1
