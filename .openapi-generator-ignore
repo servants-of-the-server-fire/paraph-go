@@ -22,5 +22,7 @@
 # Then explicitly reverse the ignore rule for a single file:
 #!docs/README.md
 
-# User-authored smoke test — do not regenerate over
+# Hand-written wrapper layer — do not regenerate over
+paraph.go
+aliases.go
 examples/**
