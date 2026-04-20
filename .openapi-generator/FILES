@@ -2,6 +2,7 @@
 .travis.yml
 api/openapi.yaml
 api_account.go
+api_auth.go
 api_requests.go
 api_signers.go
 api_templates.go
@@ -12,6 +13,7 @@ docs/Account.md
 docs/AccountAPI.md
 docs/AccountLimits.md
 docs/AccountUsage.md
+docs/AuthAPI.md
 docs/CreateRequestRequest.md
 docs/CreateWebhook201Response.md
 docs/CreateWebhook201ResponseWebhook.md
@@ -23,6 +25,9 @@ docs/ErrorError.md
 docs/Field.md
 docs/GetAccount200Response.md
 docs/ListInfo.md
+docs/Register201Response.md
+docs/Register201ResponseAuth.md
+docs/RegisterRequest.md
 docs/RequestListResponse.md
 docs/RequestResponse.md
 docs/RequestStatus.md
@@ -65,6 +70,9 @@ model_error_error.go
 model_field.go
 model_get_account_200_response.go
 model_list_info.go
+model_register_201_response.go
+model_register_201_response_auth.go
+model_register_request.go
 model_request_list_response.go
 model_request_response.go
 model_request_status.go
@@ -88,6 +96,7 @@ model_webhook_list_response.go
 model_webhook_response.go
 response.go
 test/api_account_test.go
+test/api_auth_test.go
 test/api_requests_test.go
 test/api_signers_test.go
 test/api_templates_test.go

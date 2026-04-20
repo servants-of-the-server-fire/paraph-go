@@ -138,12 +138,72 @@ tags:
     Each signer on a request has a label (matching a signature placement on the template), an email address, and a status. Signers receive an email with a link to sign. You can resend the email or download a signer's signature image after they complete signing.
   name: Signers
 - description: |
+    Unauthenticated endpoints for account creation. No API key required.
+  name: Auth
+- description: |
     View your team's plan, usage, and limits.
   name: Account
 - description: |
     Subscribe to events via webhook URLs.
   name: Webhooks
 paths:
+  /auth/register:
+    post:
+      description: |
+        Creates a new user account and sends a verification email. The user must
+        click the link in the email before they can log in. After verification,
+        retrieve your API key from the web dashboard at https://paraph.dev.
+
+        Rate limited to 5 registrations per hour per IP address.
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            example:
+              email: dev@example.com
+              password: s3curePa55word
+            schema:
+              $ref: "#/components/schemas/register_request"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              example:
+                auth:
+                  message: Check your email to verify your account before using the
+                    API.
+              schema:
+                $ref: "#/components/schemas/register_201_response"
+          description: Account created — check email to verify
+          headers:
+            X-Request-Id:
+              $ref: "#/components/headers/X-Request-Id"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          content:
+            application/json:
+              example:
+                error:
+                  error_name: conflict
+                  error_msg: email already registered
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Email already registered
+          headers:
+            X-Request-Id:
+              $ref: "#/components/headers/X-Request-Id"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      security: []
+      summary: Register a new account
+      tags:
+      - Auth
   /account:
     get:
       description: "Returns the current team's plan, usage counters, and limits for\
@@ -1337,6 +1397,12 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
       description: Invalid state transition
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: Action not permitted
     TooManyRequests:
       content:
         application/json:
@@ -2050,6 +2116,36 @@ components:
       properties:
         webhook:
           $ref: "#/components/schemas/Webhook"
+    register_request:
+      properties:
+        email:
+          description: Email address for the new account
+          format: email
+          type: string
+        password:
+          description: Password (minimum 8 characters)
+          minLength: 8
+          type: string
+      required:
+      - email
+      - password
+    register_201_response_auth:
+      example:
+        message: message
+      properties:
+        message:
+          type: string
+      required:
+      - message
+    register_201_response:
+      example:
+        auth:
+          message: message
+      properties:
+        auth:
+          $ref: "#/components/schemas/register_201_response_auth"
+      required:
+      - auth
     getAccount_200_response:
       example:
         account:
